@@ -14,8 +14,8 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
   std::ifstream vShaderFile;
   std::ifstream fShaderFile;
 
-  vShaderFile.exceptions(std::ifstream::badbit);
-  fShaderFile.exceptions(std::ifstream::badbit);
+  vShaderFile.exceptions(std::ifstream::badbit || std::ifstream::failbit);
+  fShaderFile.exceptions(std::ifstream::badbit || std::ifstream::failbit);
   try
   {
     vShaderFile.open(vertexPath);
