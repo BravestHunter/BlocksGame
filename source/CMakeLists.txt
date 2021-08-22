@@ -1,10 +1,24 @@
-add_executable(Game
+set(SOURCE_FILES
+	main.cpp
+
 	game.cpp
+	game.hpp
+	shader.cpp
+	shader.hpp
 )
 
-target_link_libraries(Game 
+add_executable(BlocksGame
+	${SOURCE_FILES}
+)
+
+target_link_libraries(BlocksGame 
 	PRIVATE 
 		glfw
 		libglew_static
 ) 
 
+target_compile_definitions(BlocksGame
+	PRIVATE
+		RESOURCE_DIRECTORY="${RESOURCE_DIRECTORY}"
+		SHADERS_DIRECTORY="${RESOURCE_DIRECTORY}/shaders"
+)
