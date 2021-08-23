@@ -15,6 +15,7 @@ target_link_libraries(BlocksGame
 	PRIVATE 
 		glfw
 		libglew_static
+		stb
 ) 
 
 target_compile_definitions(BlocksGame
