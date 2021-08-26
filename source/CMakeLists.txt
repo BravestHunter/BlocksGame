@@ -3,6 +3,8 @@ set(SOURCE_FILES
 
 	game.cpp
 	game.hpp
+	camera.cpp
+	camera.hpp
 	shader.cpp
 	shader.hpp
 )
@@ -16,6 +18,7 @@ target_link_libraries(BlocksGame
 		glfw
 		libglew_static
 		stb
+		glm
 ) 
 
 target_compile_definitions(BlocksGame
