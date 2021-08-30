@@ -2,7 +2,7 @@
 
 int main()
 {
-  Game game;
+  blocks_game::Game game;
 
   return game.Run();
 }

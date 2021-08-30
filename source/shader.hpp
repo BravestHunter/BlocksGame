@@ -8,101 +8,31 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-class Shader
+namespace blocks_game
 {
-public:
-  Shader(const GLchar* vertexPath, const GLchar* fragmentPath, const char* geometryPath = nullptr);
+  class Shader
+  {
+  public:
+    Shader(const GLchar* vertexPath, const GLchar* fragmentPath, const char* geometryPath = nullptr);
 
-  void Use();
-  GLuint GetProgramm();
+    void Use();
 
-  void use()
-  {
-    glUseProgram(Id);
-  }
-  // utility uniform functions
-  // ------------------------------------------------------------------------
-  void setBool(const std::string& name, bool value) const
-  {
-    glUniform1i(glGetUniformLocation(Id, name.c_str()), (int)value);
-  }
-  // ------------------------------------------------------------------------
-  void setInt(const std::string& name, int value) const
-  {
-    glUniform1i(glGetUniformLocation(Id, name.c_str()), value);
-  }
-  // ------------------------------------------------------------------------
-  void setFloat(const std::string& name, float value) const
-  {
-    glUniform1f(glGetUniformLocation(Id, name.c_str()), value);
-  }
-  // ------------------------------------------------------------------------
-  void setVec2(const std::string& name, const glm::vec2& value) const
-  {
-    glUniform2fv(glGetUniformLocation(Id, name.c_str()), 1, &value[0]);
-  }
-  void setVec2(const std::string& name, float x, float y) const
-  {
-    glUniform2f(glGetUniformLocation(Id, name.c_str()), x, y);
-  }
-  // ------------------------------------------------------------------------
-  void setVec3(const std::string& name, const glm::vec3& value) const
-  {
-    glUniform3fv(glGetUniformLocation(Id, name.c_str()), 1, &value[0]);
-  }
-  void setVec3(const std::string& name, float x, float y, float z) const
-  {
-    glUniform3f(glGetUniformLocation(Id, name.c_str()), x, y, z);
-  }
-  // ------------------------------------------------------------------------
-  void setVec4(const std::string& name, const glm::vec4& value) const
-  {
-    glUniform4fv(glGetUniformLocation(Id, name.c_str()), 1, &value[0]);
-  }
-  void setVec4(const std::string& name, float x, float y, float z, float w)
-  {
-    glUniform4f(glGetUniformLocation(Id, name.c_str()), x, y, z, w);
-  }
-  // ------------------------------------------------------------------------
-  void setMat2(const std::string& name, const glm::mat2& mat) const
-  {
-    glUniformMatrix2fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-  }
-  // ------------------------------------------------------------------------
-  void setMat3(const std::string& name, const glm::mat3& mat) const
-  {
-    glUniformMatrix3fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-  }
-  // ------------------------------------------------------------------------
-  void setMat4(const std::string& name, const glm::mat4& mat) const
-  {
-    glUniformMatrix4fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-  }
+    void SetBool(const std::string& name, bool value) const;
+    void SetInt(const std::string& name, int value) const;
+    void SetFloat(const std::string& name, float value) const;
+    void SetVec2(const std::string& name, const glm::vec2& value) const;
+    void SetVec2(const std::string& name, float x, float y) const;
+    void SetVec3(const std::string& name, const glm::vec3& value) const;
+    void SetVec3(const std::string& name, float x, float y, float z) const;
+    void SetVec4(const std::string& name, const glm::vec4& value) const;
+    void SetVec4(const std::string& name, float x, float y, float z, float w) const;
+    void SetMat2(const std::string& name, const glm::mat2& mat) const;
+    void SetMat3(const std::string& name, const glm::mat3& mat) const;
+    void SetMat4(const std::string& name, const glm::mat4& mat) const;
 
-private:
-  GLuint Id;
+  private:
+    GLuint Id;
 
-  void checkCompileErrors(GLuint shader, std::string type)
-  {
-    GLint success;
-    GLchar infoLog[1024];
-    if (type != "PROGRAM")
-    {
-      glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-      if (!success)
-      {
-        glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-        std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-      }
-    }
-    else
-    {
-      glGetProgramiv(shader, GL_LINK_STATUS, &success);
-      if (!success)
-      {
-        glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-        std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-      }
-    }
-  }
-};
+    void CheckCompileErrors(GLuint shader, std::string type);
+  };
+}
