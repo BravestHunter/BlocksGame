@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "container.hpp"
+
 #include "camera.hpp"
 
 const unsigned int SCR_WIDTH = 1280;
@@ -17,7 +19,7 @@ namespace blocks_game
     Game();
     ~Game();
 
-    int Run();
+    OpResult Run();
 
     Camera& GetCamera() const;
     float GetLastX() const;
@@ -28,6 +30,8 @@ namespace blocks_game
     void SetFirstMouse(bool value);
 
   private:
+    ContainerCleanup _containerCleanup;
+
     Camera& camera = Camera();
     float lastX = SCR_WIDTH / 2.0f;
     float lastY = SCR_HEIGHT / 2.0f;

@@ -9,8 +9,8 @@
 #include <iostream>
 #include <string>
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_FAILURE_USERMSG 
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STBI_FAILURE_USERMSG 
 #include "stb/stb_image.h"
 
 #include <glm/glm.hpp>
@@ -19,6 +19,8 @@
 
 #include "Camera.hpp"
 #include "Shader.hpp"
+
+#include "file/common_file_system.hpp"
 
 
 blocks_game::Game* actualGame;
@@ -33,16 +35,38 @@ namespace blocks_game
 {
   Game::Game()
   {
+    // Set all systems to container
+    Container::SetFileSystem(new CommonFileSystem());
+
+    // Initialize systems in correct order
+    Container::GetFileSystem()->Init();
+
     setActualGame(this);
   }
 
   Game::~Game()
   {
-
+    // Deinitialize systems in correct order
+    Container::GetFileSystem()->Deinit();
   }
 
-  int Game::Run()
+  OpResult Game::Run()
   {
+    //char* buffer = nullptr;
+    //int size;
+    //Container::GetFileSystem()->ReadFile("E:/WorkDirectory/MyProjects/C++/BlocksGame/test.txt", buffer, &size);
+    //;
+    //delete buffer;
+
+    //unsigned char* buffer = nullptr;
+    //int w, h, channels;
+    //Container::GetFileSystem()->ReadImage("E:/WorkDirectory/MyProjects/C++/BlocksGame/BlocksGame/resources/textures/butterfly.png", buffer, &w, &h, &channels);
+    //;
+    //delete buffer;
+
+    AbstractFileSystem* fileSystem = Container::GetFileSystem();
+
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -54,7 +78,7 @@ namespace blocks_game
     {
       std::cout << "Failed to create GLFW window" << std::endl;
       glfwTerminate();
-      return -1;
+      return FAILURE;
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -149,19 +173,21 @@ namespace blocks_game
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(CONTAINER_TEXTURE, &width, &height, &nrChannels, 0);
-    if (data)
+    //int width, height, nrChannels;
+    //stbi_set_flip_vertically_on_load(true);
+    //unsigned char* data = stbi_load(CONTAINER_TEXTURE, &width, &height, &nrChannels, 0);
+    Image texture;
+    OpResult result = fileSystem->ReadImage(CONTAINER_TEXTURE, texture);
+    if (result == SUCCESS)
     {
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.data);
       glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
     {
       std::cout << "Failed to load texture" << std::endl;
     }
-    stbi_image_free(data);
+    //stbi_image_free(data);
 
     shader.Use();
     shader.SetInt("texture1", 0);
@@ -208,7 +234,8 @@ namespace blocks_game
     glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
-    return 0;
+
+    return SUCCESS;
   }
 
   Camera& Game::GetCamera() const
