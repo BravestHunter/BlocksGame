@@ -11,34 +11,20 @@
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
-namespace blocks_game
+
+class Game
 {
-  class Game
-  {
-  public:
-    Game();
-    ~Game();
+public:
+  Game();
+  ~Game();
 
-    OpResult Run();
+  OpResult Run();
 
-    Camera& GetCamera() const;
-    float GetLastX() const;
-    void SetLastX(float value);
-    float GetLastY() const;
-    void SetLastY(float value);
-    bool IsFirstMouse() const;
-    void SetFirstMouse(bool value);
+private:
+  ContainerCleanup _containerCleanup;
 
-  private:
-    ContainerCleanup _containerCleanup;
+  float deltaTime = 0.0f;
+  float lastFrame = 0.0f;
 
-    Camera& camera = Camera();
-    float lastX = SCR_WIDTH / 2.0f;
-    float lastY = SCR_HEIGHT / 2.0f;
-    bool firstMouse = true;
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
-
-    void ProcessInput(GLFWwindow* window);
-  };
-}
+  void ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* windowSystem, Camera* camera);
+};

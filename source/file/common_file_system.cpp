@@ -6,7 +6,7 @@
 #include "stb/stb_image.h"
 
 
-CommonFileSystem::CommonFileSystem() 
+CommonFileSystem::CommonFileSystem()
 {
   // Nothing to do here
 }
@@ -19,13 +19,13 @@ CommonFileSystem::~CommonFileSystem()
 
 OpResult CommonFileSystem::Init()
 {
-  // Nothing to do here
+  _isInitialized = true;
   return SUCCESS;
 }
 
 OpResult CommonFileSystem::Deinit()
 {
-  // Nothing to do here
+  _isInitialized = false;
   return SUCCESS;
 }
 

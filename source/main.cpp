@@ -4,7 +4,7 @@
 
 int main()
 {
-  blocks_game::Game game;
+  Game game;
   
   return (int)game.Run();
 }

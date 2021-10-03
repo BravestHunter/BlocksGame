@@ -3,6 +3,7 @@
 #include "abstract_system.hpp"
 #include "image.hpp"
 
+
 /// <summary>
 /// Represents api for working with OS's file system.
 /// </summary>
