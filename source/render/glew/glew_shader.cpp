@@ -41,6 +41,22 @@ bool GlewShader::IsCompiled() const
 }
 
 
+OpResult GlewShader::LoadFromFile(const char* path, GlewShaderType shaderType, GlewShader** shader)
+{
+	AbstractFileSystem* fileSystem = Container::GetFileSystem();
+	std::string source;
+	if (fileSystem->ReadText(path, source) == FAILURE)
+	{
+		return FAILURE;
+	}
+	else
+	{
+		*shader = new GlewShader(source.c_str(), shaderType);
+		return SUCCESS;
+	}
+}
+
+
 GLuint GlewShader::GetNativeShaderType(GlewShaderType shaderType)
 {
 	switch (shaderType)

@@ -11,19 +11,12 @@
 #include "image.hpp"
 #include "container.hpp"
 
-#define BLOCK_VERTEX_SHADER "/block.vs"
-#define BLOCK_GEOMETRY_SHADER "/block.gs"
-#define BLOCK_FRAGMENT_SHADER "/block.fs"
-
-#define BLOCK_VERTEX_SHADER_PATH SHADERS_DIRECTORY BLOCK_VERTEX_SHADER
-#define BLOCK_GEOMETRY_SHADER_PATH SHADERS_DIRECTORY BLOCK_GEOMETRY_SHADER
-#define BLOCK_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY BLOCK_FRAGMENT_SHADER
-
 #define DEFAULT_VERTEX_SHADER "/default.vs"
 #define DEFAULT_FRAGMENT_SHADER "/default.fs"
 #define DEFAULT_VERTEX_SHADER_PATH SHADERS_DIRECTORY DEFAULT_VERTEX_SHADER
 #define DEFAULT_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY DEFAULT_FRAGMENT_SHADER
 #define CONTAINER_TEXTURE TEXTURES_DIRECTORY "/container.jpg"
+#define DIRT_TEXTURE TEXTURES_DIRECTORY "/dirt.jpg"
 
 
 #include "model/map.hpp"
@@ -38,7 +31,7 @@ unsigned int blocks_vbo, blocks_vao;
 unsigned int grass_texture;
 
 
-GlewRenderSystem::GlewRenderSystem()
+GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _blocksShaderProgram(NULL)
 {
   _camera = new Camera();
 
@@ -71,7 +64,8 @@ OpResult GlewRenderSystem::Init()
   glewExperimental = GL_TRUE;
   glewInit();
 
-  if (SetupBlockShaderProgram(fileSystem) == FAILURE)
+  _blocksShaderProgram = new GlewBlockShaderProgram();
+  if (!_blocksShaderProgram->IsLinked())
   {
     return FAILURE;
   }
@@ -105,7 +99,7 @@ OpResult GlewRenderSystem::Init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   Image texture;
-  OpResult result = fileSystem->ReadImage(CONTAINER_TEXTURE, texture);
+  OpResult result = fileSystem->ReadImage(DIRT_TEXTURE, texture);
   if (result == SUCCESS)
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.data);
@@ -177,9 +171,10 @@ void GlewRenderSystem::Render()
   _blocksShaderProgram->Set();
 
   glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 100.0f);
-  _blocksShaderProgram->SetMat4("projection", projection);
   glm::mat4 view = _camera->GetViewMatrix();
-  _blocksShaderProgram->SetMat4("view", view);
+  glm::mat4 viewProjection = projection * view;
+
+  _blocksShaderProgram->SetViewProjection(viewProjection);
 
   // Draw
   glBindVertexArray(VAO);
@@ -199,48 +194,4 @@ void GlewRenderSystem::SetViewport(unsigned int width, unsigned int height)
 Camera* GlewRenderSystem::GetCamera()
 {
   return _camera;
-}
-
-
-OpResult GlewRenderSystem::SetupBlockShaderProgram(AbstractFileSystem* fileSystem)
-{
-  std::string source;
-
-  if (fileSystem->ReadText(BLOCK_VERTEX_SHADER_PATH, source) == FAILURE)
-  {
-    return FAILURE;
-  }
-  GlewShader vertexShader(source.c_str(), GlewShaderType::Vertex);
-  if (!vertexShader.IsCompiled())
-  {
-    return FAILURE;
-  }
-
-  if (fileSystem->ReadText(BLOCK_GEOMETRY_SHADER_PATH, source) == FAILURE)
-  {
-    return FAILURE;
-  }
-  GlewShader geometryShader(source.c_str(), GlewShaderType::Geometry);
-  if (!geometryShader.IsCompiled())
-  {
-    return FAILURE;
-  }
-
-  if (fileSystem->ReadText(BLOCK_FRAGMENT_SHADER_PATH, source) == FAILURE)
-  {
-    return FAILURE;
-  }
-  GlewShader fragmentShader(source.c_str(), GlewShaderType::Fragment);
-  if (!fragmentShader.IsCompiled())
-  {
-    return FAILURE;
-  }
-
-  _blocksShaderProgram = new GlewShaderProgram(vertexShader, geometryShader, fragmentShader);
-  if (!_blocksShaderProgram->IsLinked())
-  {
-    return FAILURE;
-  }
-
-  return SUCCESS;
 }

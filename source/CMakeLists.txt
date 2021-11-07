@@ -38,6 +38,8 @@ set(SOURCE_FILES
 	render/glew/glew_shader_program.hpp
 	render/glew/glew_shader.cpp
 	render/glew/glew_shader.hpp
+	render/glew/glew_block_shader_program.cpp
+	render/glew/glew_block_shader_program.hpp
 
 	model/block.hpp
 	model/chunk.hpp

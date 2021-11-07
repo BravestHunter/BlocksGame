@@ -4,6 +4,7 @@
 #include "glew.hpp"
 #include "glew_shader.hpp"
 #include "glew_shader_program.hpp"
+#include "glew_block_shader_program.hpp"
 
 class GlewRenderSystem : public AbstractRenderSystem
 {
@@ -24,7 +25,5 @@ private:
   unsigned int _width;
   unsigned int _height;
   Camera* _camera;
-  GlewShaderProgram* _blocksShaderProgram;
-
-  OpResult SetupBlockShaderProgram(AbstractFileSystem* fileSystem);
+  GlewBlockShaderProgram* _blocksShaderProgram;
 };

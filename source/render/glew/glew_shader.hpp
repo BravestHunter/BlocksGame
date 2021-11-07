@@ -14,6 +14,8 @@ public:
   GLuint GetId() const;
   bool IsCompiled() const;
 
+  static OpResult LoadFromFile(const char* path, GlewShaderType shaderType, GlewShader** shader);
+
 private:
   GLuint _shader;
   bool _isCompiled;

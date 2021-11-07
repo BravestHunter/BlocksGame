@@ -4,25 +4,25 @@ layout (triangle_strip, max_vertices = 24) out;
 
 out vec2 texCoords;
 
-uniform mat4 view;
-uniform mat4 projection;
+// View * Projection
+uniform mat4 VP;
 
 
 void build_x_positive(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
@@ -31,19 +31,19 @@ void build_x_positive(vec4 center)
 
 void build_x_negative(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
@@ -52,19 +52,19 @@ void build_x_negative(vec4 center)
 
 void build_y_positive(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
@@ -73,19 +73,19 @@ void build_y_positive(vec4 center)
 
 void build_y_negative(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
@@ -94,19 +94,19 @@ void build_y_negative(vec4 center)
 
 void build_z_positive(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, 0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, 0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
@@ -115,19 +115,19 @@ void build_z_positive(vec4 center)
 
 void build_z_negative(vec4 center)
 {
-    gl_Position = projection * view * (center + vec4(-0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, 0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, 0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 0.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(-0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(-0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(0.0, 1.0);
     EmitVertex();
 
-    gl_Position = projection * view * (center + vec4(0.5, -0.5, -0.5, 0.0));
+    gl_Position = VP * (center + vec4(0.5, -0.5, -0.5, 0.0));
     texCoords = vec2(1.0, 1.0);
     EmitVertex();
 
