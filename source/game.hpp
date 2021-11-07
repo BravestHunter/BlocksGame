@@ -5,17 +5,13 @@
 #include <GLFW/glfw3.h>
 
 #include "container.hpp"
-
 #include "camera.hpp"
-
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
-
+#include "model/map.hpp"
 
 class Game
 {
 public:
-  Game();
+  Game(unsigned int width, unsigned int height);
   ~Game();
 
   OpResult Run();

@@ -4,19 +4,19 @@
 #include <string>
 
 #include "Camera.hpp"
-#include "Shader.hpp"
+#include "render/glew/glew_shader.hpp"
 
 #include "file/common_file_system.hpp"
 #include "window/glfw_window_system.hpp"
 #include "input/glfw_input_system.hpp"
-#include "render/glew_render_system.hpp"
+#include "render/glew/glew_render_system.hpp"
 
 
-Game::Game()
+Game::Game(unsigned int width, unsigned int height)
 {
   // Set all systems to container
   Container::SetFileSystem(new CommonFileSystem());
-  Container::SetWindowSystem(new GlfwWindowSystem(SCR_WIDTH, SCR_HEIGHT));
+  Container::SetWindowSystem(new GlfwWindowSystem(width, height));
   Container::SetInputSystem(new GlfwInputSystem());
   Container::SetRenderSystem(new GlewRenderSystem());
 
@@ -44,19 +44,22 @@ OpResult Game::Run()
   AbstractRenderSystem* renderSystem = Container::GetRenderSystem();
   Camera* camera = renderSystem->GetCamera();
 
-  renderSystem->SetViewport(SCR_WIDTH, SCR_HEIGHT);
+  unsigned int width = windowSystem->GetWidth();
+  unsigned int height = windowSystem->GetHeight();
+  renderSystem->SetViewport(windowSystem->GetWidth(), windowSystem->GetHeight());
 
-  unsigned int width = SCR_WIDTH;
-  unsigned int height = SCR_HEIGHT;
   while (!windowSystem->IsCloseRequested())
   {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    // Poor FPS:
+    //std::cout << 1000.0 / deltaTime << std::endl;
+
     ProcessInput(inputSystem, windowSystem, camera);
 
-    renderSystem->RenderScene();
+    renderSystem->Render();
 
     if (windowSystem->GetWidth() != width ||
         windowSystem->GetHeight() != height)

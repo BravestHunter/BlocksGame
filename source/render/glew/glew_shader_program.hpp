@@ -1,19 +1,21 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include "glew.hpp"
+#include "glew_shader.hpp"
 
-#include <GL/glew.h>
-#include <glm/glm.hpp>
 
-class Shader
+class GlewShaderProgram
 {
 public:
-  Shader(const GLchar* vertexPath, const GLchar* fragmentPath, const char* geometryPath = nullptr);
+  GlewShaderProgram(const GlewShader& vertexShader, const GlewShader& fragmentShader);
+  GlewShaderProgram(const GlewShader& vertexShader, const GlewShader& geometryShader, const GlewShader& fragmentShader);
+  ~GlewShaderProgram();
 
-  void Use();
+  void Set();
+  void Unset();
+
+  GLuint GetId() const;
+  bool IsLinked() const;
 
   void SetBool(const std::string& name, bool value) const;
   void SetInt(const std::string& name, int value) const;
@@ -29,7 +31,8 @@ public:
   void SetMat4(const std::string& name, const glm::mat4& mat) const;
 
 private:
-  GLuint Id;
+  GLuint _shaderProgram;
+  bool _isLinked;
 
-  void CheckCompileErrors(GLuint shader, std::string type);
+  void Link();
 };

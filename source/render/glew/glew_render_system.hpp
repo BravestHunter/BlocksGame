@@ -1,10 +1,9 @@
 #pragma once
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include "abstract_render_system.hpp"
-#include "shader.hpp"
+#include "render/abstract_render_system.hpp"
+#include "glew.hpp"
+#include "glew_shader.hpp"
+#include "glew_shader_program.hpp"
 
 class GlewRenderSystem : public AbstractRenderSystem
 {
@@ -15,7 +14,7 @@ public:
   virtual OpResult Init() override;
   virtual OpResult Deinit() override;
 
-  virtual void RenderScene() override;
+  virtual void Render() override;
 
   virtual void SetViewport(unsigned int width, unsigned int height) override;
 
@@ -25,5 +24,7 @@ private:
   unsigned int _width;
   unsigned int _height;
   Camera* _camera;
-  Shader* _shader;
+  GlewShaderProgram* _blocksShaderProgram;
+
+  OpResult SetupBlockShaderProgram(AbstractFileSystem* fileSystem);
 };
