@@ -2,6 +2,7 @@
 
 #include "abstract_file_system.hpp"
 
+
 /// <summary>
 /// Represents FileSystem implemented using std.
 /// </summary>
@@ -14,6 +15,7 @@ public:
   virtual OpResult Init() override;
   virtual OpResult Deinit() override;
 
-  virtual OpResult ReadFile(const char* path, char* buffer, int* size) override;
+  virtual OpResult ReadText(const char* path, std::string& text) override;
+  virtual OpResult ReadBinary(const char* path, DataBuffer<Byte>& buffer) override;
   virtual OpResult ReadImage(const char* path, Image& image) override;
 };

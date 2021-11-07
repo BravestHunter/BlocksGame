@@ -8,4 +8,4 @@ enum class OpResult
 };
 
 OpResult const SUCCESS = OpResult::Success;
-OpResult const FAILURE = OpResult::Success;
+OpResult const FAILURE = OpResult::Failure;
