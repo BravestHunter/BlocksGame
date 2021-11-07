@@ -8,3 +8,4 @@ set(RESOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 add_subdirectory(external)
 add_subdirectory(source)
+add_subdirectory(tests)
