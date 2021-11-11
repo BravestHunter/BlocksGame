@@ -1,6 +1,12 @@
 #version 330 core
 layout (location = 0) in int aBlock;
 
+out int block;
+
+out VS_TO_GEOM {
+    int block;
+} vs_to_geom;
+
 
 vec4 CalculatePosition()
 {
@@ -13,5 +19,6 @@ vec4 CalculatePosition()
 
 void main()
 {
+    vs_to_geom.block = aBlock;
     gl_Position = CalculatePosition();
 }

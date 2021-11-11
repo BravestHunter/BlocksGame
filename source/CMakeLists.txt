@@ -41,9 +41,10 @@ set(SOURCE_FILES
 	render/glew/glew_block_shader_program.cpp
 	render/glew/glew_block_shader_program.hpp
 
+	model/model.hpp
 	model/block.hpp
+	model/chunk_part.hpp
 	model/chunk.hpp
-	model/map.hpp
 )
 
 add_library(BlocksGameCore STATIC ${SOURCE_FILES})

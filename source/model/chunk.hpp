@@ -1,14 +1,14 @@
 #pragma once
 
-#include "block.hpp"
+#include "chunk_part.hpp"
 
 
 struct Chunk
 {
-  const static size_t Length = 16;
-  const static size_t Height = 16;
-  const static size_t Width = 16;
-  const static size_t BlocksNumber = Length * Height * Width;
+  const static size_t PartsNumber = 16;
+  const static size_t BlocksNumber = PartsNumber * ChunkPart::BlocksNumber;
 
-  Block blocks[BlocksNumber];
+  std::int32_t x;
+  std::int32_t y;
+  ChunkPart parts[PartsNumber];
 };

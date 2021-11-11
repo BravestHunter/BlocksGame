@@ -6,7 +6,7 @@
 
 #include "container.hpp"
 #include "camera.hpp"
-#include "model/map.hpp"
+#include "model/model.hpp"
 
 class Game
 {

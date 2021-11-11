@@ -2,4 +2,4 @@
 
 #include <cstdint>
 
-typedef std::uint16_t Block;
+typedef std::uint32_t Block;

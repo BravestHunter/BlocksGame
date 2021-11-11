@@ -8,6 +8,8 @@
 #include "glew_shader_program.hpp"
 #include "glew_block_shader_program.hpp"
 
+#include "model/model.hpp"
+
 
 struct Character {
   GLuint     TextureID; // ID текстуры глифа
@@ -36,6 +38,8 @@ private:
   unsigned int _width;
   unsigned int _height;
   Camera* _camera;
+
+  Chunk* _chunk;
 
   unsigned int _blocksVBO;
   unsigned int _blocksVAO;

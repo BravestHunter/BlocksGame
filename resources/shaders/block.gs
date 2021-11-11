@@ -2,6 +2,10 @@
 layout (points) in;
 layout (triangle_strip, max_vertices = 24) out;
 
+in VS_TO_GEOM {
+    int block;
+} vs_to_geom[];
+
 out vec2 texCoords;
 
 // View * Projection
@@ -136,6 +140,9 @@ void build_z_negative(vec4 center)
 
 void main() 
 {
+    if (vs_to_geom[0].block == 0)
+        return;
+
     vec4 center = gl_in[0].gl_Position;
 
     build_x_positive(center);

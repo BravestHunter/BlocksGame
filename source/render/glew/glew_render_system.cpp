@@ -32,27 +32,26 @@
 #define DIRT_TEXTURE TEXTURES_DIRECTORY "/dirt.jpg"
 
 
-#include "model/map.hpp"
-
-
-Map* _map = NULL;
-
-
 GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _blocksShaderProgram(NULL)
 {
   _camera = new Camera();
 
-  _map = new Map();
+  _chunk = new Chunk();
 
-  for (int i = 0; i < Chunk::BlocksNumber; i++)
+  for (int i = 0; i < Chunk::PartsNumber; i++)
   {
-    _map->chunk.blocks[i] = 1;
+    ChunkPart& part = _chunk->parts[i];
+    
+    for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+    {
+      part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
+    }
   }
 }
 
 GlewRenderSystem::~GlewRenderSystem()
 {
-  delete _map;
+  delete _chunk;
 
   delete _camera;
 
@@ -99,8 +98,9 @@ OpResult GlewRenderSystem::Init()
   }
 
   //================================
-  unsigned int vertices[Chunk::BlocksNumber];
-  std::copy(std::begin(_map->chunk.blocks), std::end(_map->chunk.blocks), std::begin(vertices));
+  unsigned unsigned int vertices[Chunk::BlocksNumber];
+  //std::copy(std::begin(_chunk->parts), std::end(_chunk->parts), std::begin(vertices));
+  std::memcpy(&vertices, &_chunk->parts, sizeof(Block) * Chunk::BlocksNumber);
 
   glGenVertexArrays(1, &_blocksVAO);
   glGenBuffers(1, &_blocksVBO);
@@ -116,7 +116,8 @@ OpResult GlewRenderSystem::Init()
   glEnableVertexAttribArray(0);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glVertexAttribDivisor(0, 1);
+  glBindVertexArray(0);
+  //glVertexAttribDivisor(0, 1);
 
 
 
