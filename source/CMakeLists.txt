@@ -67,6 +67,7 @@ target_link_libraries(BlocksGameCore
 		libglew_static
 		stb
 		glm
+		freetype
 ) 
 
 target_compile_definitions(BlocksGameCore

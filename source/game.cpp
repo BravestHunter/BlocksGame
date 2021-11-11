@@ -54,12 +54,12 @@ OpResult Game::Run()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    // Poor FPS:
-    //std::cout << 1000.0 / deltaTime << std::endl;
-
     ProcessInput(inputSystem, windowSystem, camera);
 
     renderSystem->Render();
+
+    // Poor FPS:
+    renderSystem->RenderString(std::to_string((int)(1000 / deltaTime)), 25.0f, 25.0f, glm::vec3(1.0f, 1.0f, 0.0f));
 
     if (windowSystem->GetWidth() != width ||
         windowSystem->GetHeight() != height)

@@ -46,6 +46,10 @@ GlewBlockShaderProgram::GlewBlockShaderProgram() : _vpUniformLocation(0)
     {
       _vpUniformLocation = glGetUniformLocation(_shaderProgram, "VP");
     }
+
+    delete vertexShader;
+    delete geometryShader;
+    delete fragmentShader;
   }
 }
 

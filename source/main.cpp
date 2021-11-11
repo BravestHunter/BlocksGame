@@ -3,8 +3,8 @@
 #include "op_result.hpp"
 
 
-const unsigned int WIDTH = 1280;
-const unsigned int HEIGHT = 720;
+const unsigned int WIDTH = 1920;
+const unsigned int HEIGHT = 1080;
 
 
 int main()
