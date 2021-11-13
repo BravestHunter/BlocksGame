@@ -10,9 +10,9 @@ out VS_TO_GEOM {
 
 vec4 CalculatePosition()
 {
-    int x = gl_VertexID / 256;
-    int y = (gl_VertexID - x * 256) / 16;
-    int z = gl_VertexID - x * 256 - y * 16;
+    int x = gl_VertexID / 4096;
+    int y = (gl_VertexID - x * 4096) / 256;
+    int z = gl_VertexID - x * 4096 - y * 256;
 
     return vec4(x, y, z, 1.0);
 }

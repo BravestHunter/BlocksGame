@@ -29,6 +29,7 @@ public:
 
   virtual void Render() override;
   virtual void RenderString(std::string text, float x, float y, glm::vec3 color) override;
+  virtual void RenderAxes() override;
 
   virtual void SetViewport(unsigned int width, unsigned int height) override;
 
@@ -50,4 +51,8 @@ private:
   GLuint _glyphVAO;
   GLuint _glyphVBO;
   GlewShaderProgram* _glyphShaderProgram;
+
+  unsigned int _axesVBO;
+  unsigned int _axesVAO;
+  GlewShaderProgram* _axesShaderProgram;
 };

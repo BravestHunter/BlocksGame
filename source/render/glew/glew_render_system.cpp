@@ -14,19 +14,19 @@
 #include "image.hpp"
 #include "container.hpp"
 
-#define DEFAULT_VERTEX_SHADER "/default.vs"
-#define DEFAULT_FRAGMENT_SHADER "/default.fs"
 #define GLYPH_VERTEX_SHADER "/glyph.vs"
 #define GLYPH_FRAGMENT_SHADER "/glyph.fs"
+#define AXES_VERTEX_SHADER "/axes.vs"
+#define AXES_FRAGMENT_SHADER "/axes.fs"
 
-#define DEFAULT_VERTEX_SHADER_PATH SHADERS_DIRECTORY DEFAULT_VERTEX_SHADER
-#define DEFAULT_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY DEFAULT_FRAGMENT_SHADER
 #define GLYPH_VERTEX_SHADER_PATH SHADERS_DIRECTORY GLYPH_VERTEX_SHADER
 #define GLYPH_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY GLYPH_FRAGMENT_SHADER
+#define AXES_VERTEX_SHADER_PATH SHADERS_DIRECTORY AXES_VERTEX_SHADER
+#define AXES_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY AXES_FRAGMENT_SHADER
 
-#define DEFAULT_FONTS_PATH RESOURCE_DIRECTORY "/fonts"
+#define AXES_FONTS_PATH RESOURCE_DIRECTORY "/fonts"
 #define QUICKSAND_FONT "/alter/Aller_Rg.ttf"
-#define QUICKSAND_FONTPATH DEFAULT_FONTS_PATH QUICKSAND_FONT
+#define QUICKSAND_FONTPATH AXES_FONTS_PATH QUICKSAND_FONT
 
 #define CONTAINER_TEXTURE TEXTURES_DIRECTORY "/container.jpg"
 #define DIRT_TEXTURE TEXTURES_DIRECTORY "/dirt.jpg"
@@ -64,6 +64,7 @@ GlewRenderSystem::~GlewRenderSystem()
 
   delete _blocksShaderProgram;
   delete _glyphShaderProgram;
+  delete _axesShaderProgram;
 }
 
 
@@ -93,6 +94,16 @@ OpResult GlewRenderSystem::Init()
   GlewShader glyphFragmentShader(source.c_str(), GlewShaderType::Fragment);
   _glyphShaderProgram = new GlewShaderProgram(glyphVertexShader, glyphFragmentShader);
   if (!_glyphShaderProgram->IsLinked())
+  {
+    return FAILURE;
+  }
+
+  fileSystem->ReadText(AXES_VERTEX_SHADER_PATH, source);
+  GlewShader axesVertexShader(source.c_str(), GlewShaderType::Vertex);
+  fileSystem->ReadText(AXES_FRAGMENT_SHADER_PATH, source);
+  GlewShader axesFragmentShader(source.c_str(), GlewShaderType::Fragment);
+  _axesShaderProgram = new GlewShaderProgram(axesVertexShader, axesFragmentShader);
+  if (!_axesShaderProgram->IsLinked())
   {
     return FAILURE;
   }
@@ -154,12 +165,6 @@ OpResult GlewRenderSystem::Init()
 
   FT_Set_Pixel_Sizes(face, 0, 32);
 
-  if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
-  {
-    return FAILURE;
-  }
-
-
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
   for (GLubyte c = 0; c < 128; c++)
@@ -217,6 +222,32 @@ OpResult GlewRenderSystem::Init()
 
   //================================
 
+  float axesData[] = {
+    0.0, 0.0, 0.0,      1.0, 0.0, 0.0,
+    10000.0, 0.0, 0.0,  1.0, 0.0, 0.0,
+
+    0.0, 0.0, 0.0,      0.0, 1.0, 0.0,
+    0.0, 10000.0, 0.0,  0.0, 1.0, 0.0,
+
+    0.0, 0.0, 0.0,      0.0, 0.0, 1.0,
+    0.0, 0.0, 10000.0,  0.0, 0.0, 1.0
+  };
+
+  glGenVertexArrays(1, &_axesVAO);
+  glGenBuffers(1, &_axesVBO);
+  glBindVertexArray(_axesVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, _axesVBO);
+
+  glBufferData(GL_ARRAY_BUFFER, sizeof(axesData), axesData, GL_DYNAMIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  //================================
+
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   glEnable(GL_DEPTH_TEST);
@@ -242,6 +273,9 @@ OpResult GlewRenderSystem::Deinit()
   glDeleteVertexArrays(1, &_glyphVAO);
   glDeleteBuffers(1, &_glyphVBO);
   //================================
+  glDeleteVertexArrays(1, &_axesVAO);
+  glDeleteBuffers(1, &_axesVBO);
+  //================================
 
   _isInitialized = false;
   return SUCCESS;
@@ -258,7 +292,7 @@ void GlewRenderSystem::Render()
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, _blockTexture);
 
-  glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 100.0f);
+  glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 1000.0f);
   glm::mat4 view = _camera->GetViewMatrix();
   glm::mat4 viewProjection = projection * view;
 
@@ -319,6 +353,22 @@ void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+void GlewRenderSystem::RenderAxes()
+{
+  _axesShaderProgram->Set();
+
+  glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 1000.0f);
+  glm::mat4 view = _camera->GetViewMatrix();
+  //glm::mat4 viewProjection = projection * view;
+
+  _axesShaderProgram->SetMat4("projection", projection);
+  _axesShaderProgram->SetMat4("view", view);
+
+  // Draw
+  glBindVertexArray(_axesVAO);
+  glDrawArrays(GL_LINES, 0, 6);
 }
 
 

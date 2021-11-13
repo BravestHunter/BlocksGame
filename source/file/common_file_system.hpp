@@ -4,7 +4,7 @@
 
 
 /// <summary>
-/// Represents FileSystem implemented using std.
+/// Represents universal FileSystem implemented with help of std.
 /// </summary>
 class CommonFileSystem : public AbstractFileSystem
 {

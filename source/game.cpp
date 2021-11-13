@@ -58,8 +58,10 @@ OpResult Game::Run()
 
     renderSystem->Render();
 
+    renderSystem->RenderAxes();
+
     // Poor FPS:
-    renderSystem->RenderString(std::to_string((int)(1000 / deltaTime)), 25.0f, 25.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+    renderSystem->RenderString(std::to_string((int)(1 / deltaTime)), 25.0f, 25.0f, glm::vec3(1.0f, 1.0f, 0.0f));
 
     if (windowSystem->GetWidth() != width ||
         windowSystem->GetHeight() != height)
