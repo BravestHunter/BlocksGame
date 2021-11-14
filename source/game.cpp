@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "direction.hpp"
 #include "Camera.hpp"
 #include "render/glew/glew_shader.hpp"
 
@@ -88,27 +89,32 @@ void Game::ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* 
     windowSystem->RequestClose();
   }
 
+  glm::vec3 position = camera->GetPosition();
   if (inputSystem->GetKeyStatus(KeyboardKey::W) == KeyState::PRESSED)
   {
-    camera->ProcessKeyboard(FORWARD, deltaTime);
+    camera->SetPosition(position + camera->GetForward() * deltaTime * 50.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::S) == KeyState::PRESSED)
   {
-    camera->ProcessKeyboard(BACKWARD, deltaTime);
+    camera->SetPosition(position - camera->GetForward() * deltaTime * 50.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::A) == KeyState::PRESSED)
   {
-    camera->ProcessKeyboard(LEFT, deltaTime);
+    camera->SetPosition(position - camera->GetRight() * deltaTime * 50.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::D) == KeyState::PRESSED)
   {
-    camera->ProcessKeyboard(RIGHT, deltaTime);
+    camera->SetPosition(position + camera->GetRight() * deltaTime * 50.0f);
   }
 
-  if (inputSystem->GetMouseDeltaX() != 0 ||
-    inputSystem->GetMouseDeltaY() != 0)
+  if (inputSystem->GetMouseDeltaX() != 0)
   {
-    camera->ProcessMouseMovement(inputSystem->GetMouseDeltaX(), inputSystem->GetMouseDeltaY());
-    inputSystem->ClearMouseDelta();
+    camera->SetYaw(camera->GetYaw() - inputSystem->GetMouseDeltaX() * 0.1f);
   }
+  if (inputSystem->GetMouseDeltaY() != 0)
+  {
+    camera->SetPitch(camera->GetPitch() + inputSystem->GetMouseDeltaY() * 0.1f);
+  }
+
+  inputSystem->ClearMouseDelta();
 }

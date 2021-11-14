@@ -34,7 +34,13 @@
 
 GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _blocksShaderProgram(NULL)
 {
-  _camera = new Camera();
+  _camera = new Camera(
+    CameraProjectionType::Perspective,
+    glm::vec3(0.0f, 0.0f, 1.0f),
+    glm::vec3(-16.0f, -16.0f, 256.0f),
+    0.0f,
+    0.0
+  );
 
   _chunk = new Chunk();
 
@@ -292,8 +298,8 @@ void GlewRenderSystem::Render()
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, _blockTexture);
 
-  glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 1000.0f);
-  glm::mat4 view = _camera->GetViewMatrix();
+  glm::mat4 view = _camera->GetView();
+  glm::mat4 projection = _camera->GetProjection();
   glm::mat4 viewProjection = projection * view;
 
   _blocksShaderProgram->SetViewProjection(viewProjection);
@@ -359,9 +365,8 @@ void GlewRenderSystem::RenderAxes()
 {
   _axesShaderProgram->Set();
 
-  glm::mat4 projection = glm::perspective(glm::radians(_camera->GetZoom()), (float)_width / (float)_height, 0.1f, 1000.0f);
-  glm::mat4 view = _camera->GetViewMatrix();
-  //glm::mat4 viewProjection = projection * view;
+  glm::mat4 view = _camera->GetView();
+  glm::mat4 projection = _camera->GetProjection();
 
   _axesShaderProgram->SetMat4("projection", projection);
   _axesShaderProgram->SetMat4("view", view);

@@ -1,5 +1,6 @@
 #pragma once
 
+
 enum class OpResult
 {
   Success = 0,

@@ -6,6 +6,8 @@ set(SOURCE_FILES
 	container.hpp
 
 	types.hpp
+	direction.hpp
+	camera_projection_type.hpp
 	game.cpp
 	game.hpp
 	image.hpp

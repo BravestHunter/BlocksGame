@@ -1,86 +1,173 @@
 #include "camera.hpp"
 
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-  : _front(glm::vec3(1.0f, 0.0f, 0.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(
+  CameraProjectionType projectionType,
+  glm::vec3 worldUp,
+  glm::vec3 position,
+  float yaw,
+  float pitch
+) :
+  _projectionType(projectionType),
+  _worldUp(worldUp),
+  _position(position),
+  _yaw(yaw),
+  _pitch(pitch)
 {
-  _position = position;
-  _yaw = yaw;
-  _pitch = pitch;
-  UpdateCameraVectors();
-}
-
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
-  : _front(glm::vec3(1.0f, 0.0f, 0.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-{
-  _position = glm::vec3(posX, posY, posZ);
-  _yaw = yaw;
-  _pitch = pitch;
-  UpdateCameraVectors();
 }
 
 
-glm::mat4 Camera::GetViewMatrix()
+CameraProjectionType Camera::GetProjectionType()
 {
-  return glm::lookAt(_position, _position + _front, _up);
+  return _projectionType;
 }
 
-float Camera::GetZoom()
+glm::vec3 Camera::GetWorldUp()
 {
-  return Zoom;
+  return _worldUp;
 }
 
-void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+glm::vec3 Camera::GetPosition()
 {
-  float velocity = MovementSpeed * deltaTime;
-  if (direction == FORWARD)
-    _position += _front * velocity;
-  if (direction == BACKWARD)
-    _position -= _front * velocity;
-  if (direction == LEFT)
-    _position -= _right * velocity;
-  if (direction == RIGHT)
-    _position += _right * velocity;
+  return _position;
 }
 
-void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+float Camera::GetYaw()
 {
-  xoffset *= MouseSensitivity;
-  yoffset *= MouseSensitivity;
+  return _yaw;
+}
 
-  //_yaw -= xoffset;
-  _yaw -= xoffset;
-  _pitch += yoffset;
+float Camera::GetPitch()
+{
+  return _pitch;
+}
 
-  if (constrainPitch)
+glm::vec3 Camera::GetForward()
+{
+  if (_areDirectionVectorsDirty)
+    RecalculateDirectionVectors();
+
+  return _forward;
+}
+
+glm::vec3 Camera::GetRight()
+{
+  if (_areDirectionVectorsDirty)
+    RecalculateDirectionVectors();
+
+  return _right;
+}
+
+glm::vec3 Camera::GetUp()
+{
+  if (_areDirectionVectorsDirty)
+    RecalculateDirectionVectors();
+
+  return _up;
+}
+
+glm::mat4 Camera::GetView()
+{
+  if (_areDirectionVectorsDirty)
+    RecalculateDirectionVectors();
+
+  if (_isViewDirty)
   {
-    if (_pitch > 89.0f)
-      _pitch = 89.0f;
-    if (_pitch < -89.0f)
-      _pitch = -89.0f;
+    _view = glm::lookAt(_position, _position + _forward, _up);
+
+    _isViewDirty = false;
   }
 
-  UpdateCameraVectors();
+  return _view;
 }
 
-void Camera::ProcessMouseScroll(float yoffset)
+glm::mat4 Camera::GetProjection()
 {
-  Zoom -= (float)yoffset;
-  if (Zoom < 1.0f)
-    Zoom = 1.0f;
-  if (Zoom > 45.0f)
-    Zoom = 45.0f;
+  if (_isProjectionDirty)
+  {
+    if (_projectionType == CameraProjectionType::Perspective)
+    {
+      _projection = glm::perspective(glm::radians(45.0f), 48.0f / 27, 0.1f, 1000.0f);
+    }
+    else
+    {
+      throw new std::exception("Othographic CameraProjectionType not supported");
+    }
+
+    _isProjectionDirty = false;
+  }
+
+  return _projection;
 }
 
 
-void Camera::UpdateCameraVectors()
+void Camera::SetProjectionType(CameraProjectionType projectionType)
+{
+  if (_projectionType == projectionType)
+    return;
+
+  _projectionType = projectionType;
+
+  _isProjectionDirty = true;
+}
+
+void Camera::SetWorldUp(glm::vec3 worldUp)
+{
+  if (_worldUp == worldUp)
+    return;
+
+  _worldUp = worldUp;
+
+  _areDirectionVectorsDirty = true;
+}
+
+void Camera::SetPosition(glm::vec3 position)
+{
+  if (_position == position)
+    return;
+
+  _position = position;
+
+  _isViewDirty = true;
+}
+
+void Camera::SetYaw(float yaw)
+{
+  if (_yaw == yaw)
+    return;
+
+  _yaw = yaw;
+
+  _areDirectionVectorsDirty = true;
+}
+
+void Camera::SetPitch(float pitch)
+{
+  if (_pitch == pitch)
+    return;
+
+  _pitch = pitch;
+
+  if (_pitch > 89.9f)
+    _pitch = 89.9f;
+  if (_pitch < -89.9f)
+    _pitch = -89.9f;
+
+  _areDirectionVectorsDirty = true;
+}
+
+
+void Camera::RecalculateDirectionVectors()
 {
   glm::vec3 front;
   front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
   front.y = sin(glm::radians(_yaw))* cos(glm::radians(_pitch));
   front.z = sin(glm::radians(_pitch));
-  _front = glm::normalize(front);
 
-  _right = glm::normalize(glm::cross(_front, glm::vec3(0.0f, 0.0f, 1.0f)));
-  _up = glm::normalize(glm::cross(_right, _front));
+  _forward = glm::normalize(front);
+  _right = glm::normalize(glm::cross(_forward, _worldUp));
+  _up = glm::normalize(glm::cross(_right, _forward));
+
+  _areDirectionVectorsDirty = false;
+  _isViewDirty = true;
 }
