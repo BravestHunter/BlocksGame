@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum class KeyState
+enum class KeyboardKeyState
 {
   UNKNOWN = -1,
 

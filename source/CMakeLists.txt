@@ -23,13 +23,16 @@ set(SOURCE_FILES
 	window/glfw_window_system.cpp
 	window/glfw_window_system.hpp
 
-	input/key_state.hpp
+	input/input.hpp
+	input/keyboard_key_state.hpp
 	input/keyboard_key.hpp
 	input/abstract_input_system.hpp
-	input/glfw_input_system.cpp
-	input/glfw_input_system.hpp
-	input/glfw_convert.cpp
-	input/glfw_convert.hpp
+	input/glfw/glfw_input.hpp
+	input/glfw/glfw.hpp
+	input/glfw/glfw_input_system.cpp
+	input/glfw/glfw_input_system.hpp
+	input/glfw/glfw_convert.cpp
+	input/glfw/glfw_convert.hpp
 
 	render/abstract_render_system.hpp
 	render/glew/glew.hpp

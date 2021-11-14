@@ -1,33 +1,33 @@
 #include "glfw_convert.hpp"
 
 
-KeyState ConvertFromGlfwKeyState(int state)
+KeyboardKeyState ConvertFromGlfwKeyState(int state)
 {
 	switch (state)
 	{
 	case GLFW_RELEASE:
-		return KeyState::RELEASED;
+		return KeyboardKeyState::RELEASED;
 
 	case GLFW_PRESS:
 	case GLFW_REPEAT:
-		return KeyState::PRESSED;
+		return KeyboardKeyState::PRESSED;
 
 	default:
-		return KeyState::UNKNOWN;
+		return KeyboardKeyState::UNKNOWN;
 	}
 }
 
-int ConvertToGlfwKeyState(KeyState state)
+int ConvertToGlfwKeyState(KeyboardKeyState state)
 {
 	switch (state)
 	{
-	case KeyState::RELEASED:
+	case KeyboardKeyState::RELEASED:
 		return GLFW_RELEASE;
 
-	case KeyState::PRESSED:
+	case KeyboardKeyState::PRESSED:
 		return GLFW_PRESS;
 
-	case KeyState::UNKNOWN:
+	case KeyboardKeyState::UNKNOWN:
 	default:
 		return -1;
 	}

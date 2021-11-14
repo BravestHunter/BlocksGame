@@ -9,7 +9,7 @@
 
 #include "file/common_file_system.hpp"
 #include "window/glfw_window_system.hpp"
-#include "input/glfw_input_system.hpp"
+#include "input/glfw/glfw_input_system.hpp"
 #include "render/glew/glew_render_system.hpp"
 
 
@@ -117,25 +117,25 @@ void Game::ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* 
 {
   inputSystem->ProcessEvents();
 
-  if (inputSystem->GetKeyStatus(KeyboardKey::ESCAPE) == KeyState::PRESSED)
+  if (inputSystem->GetKeyStatus(KeyboardKey::ESCAPE) == KeyboardKeyState::PRESSED)
   {
     windowSystem->RequestClose();
   }
 
   glm::vec3 position = camera->GetPosition();
-  if (inputSystem->GetKeyStatus(KeyboardKey::W) == KeyState::PRESSED)
+  if (inputSystem->GetKeyStatus(KeyboardKey::W) == KeyboardKeyState::PRESSED)
   {
     camera->SetPosition(position + camera->GetForward() * deltaTime * 50.0f);
   }
-  if (inputSystem->GetKeyStatus(KeyboardKey::S) == KeyState::PRESSED)
+  if (inputSystem->GetKeyStatus(KeyboardKey::S) == KeyboardKeyState::PRESSED)
   {
     camera->SetPosition(position - camera->GetForward() * deltaTime * 50.0f);
   }
-  if (inputSystem->GetKeyStatus(KeyboardKey::A) == KeyState::PRESSED)
+  if (inputSystem->GetKeyStatus(KeyboardKey::A) == KeyboardKeyState::PRESSED)
   {
     camera->SetPosition(position - camera->GetRight() * deltaTime * 50.0f);
   }
-  if (inputSystem->GetKeyStatus(KeyboardKey::D) == KeyState::PRESSED)
+  if (inputSystem->GetKeyStatus(KeyboardKey::D) == KeyboardKeyState::PRESSED)
   {
     camera->SetPosition(position + camera->GetRight() * deltaTime * 50.0f);
   }

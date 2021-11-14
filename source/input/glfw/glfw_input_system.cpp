@@ -48,7 +48,7 @@ void GlfwInputSystem::ProcessEvents()
   glfwPollEvents();
 }
 
-KeyState GlfwInputSystem::GetKeyStatus(KeyboardKey key) const
+KeyboardKeyState GlfwInputSystem::GetKeyStatus(KeyboardKey key) const
 {
   return ConvertFromGlfwKeyState(glfwGetKey(_window, ConvertToGlfwKeyboardKey(key)));
 }
