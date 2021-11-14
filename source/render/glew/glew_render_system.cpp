@@ -41,24 +41,10 @@ GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _bl
     0.0f,
     0.0
   );
-
-  _chunk = new Chunk();
-
-  for (int i = 0; i < Chunk::PartsNumber; i++)
-  {
-    ChunkPart& part = _chunk->parts[i];
-    
-    for (int j = 0; j < ChunkPart::BlocksNumber; j++)
-    {
-      part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
-    }
-  }
 }
 
 GlewRenderSystem::~GlewRenderSystem()
 {
-  delete _chunk;
-
   delete _camera;
 
   glDeleteTextures(1, &_blockTexture);
@@ -115,28 +101,6 @@ OpResult GlewRenderSystem::Init()
   }
 
   //================================
-  unsigned unsigned int vertices[Chunk::BlocksNumber];
-  //std::copy(std::begin(_chunk->parts), std::end(_chunk->parts), std::begin(vertices));
-  std::memcpy(&vertices, &_chunk->parts, sizeof(Block) * Chunk::BlocksNumber);
-
-  glGenVertexArrays(1, &_blocksVAO);
-  glGenBuffers(1, &_blocksVBO);
-
-  glBindVertexArray(_blocksVAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, _blocksVBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  size_t stride = sizeof(unsigned int);
-
-  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)0);
-  glEnableVertexAttribArray(0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-  //glVertexAttribDivisor(0, 1);
-
-
 
   glGenTextures(1, &_blockTexture);
   glBindTexture(GL_TEXTURE_2D, _blockTexture);
@@ -272,9 +236,12 @@ OpResult GlewRenderSystem::Deinit()
     return FAILURE;
   }
 
-  //================================
-  glDeleteVertexArrays(1, &_blocksVAO);
-  glDeleteBuffers(1, &_blocksVBO);
+  for (const auto& chunk : _chunks)
+  {
+    glDeleteVertexArrays(1, &chunk.second.vao);
+    glDeleteBuffers(1, &chunk.second.vbo);
+  }
+
   //================================
   glDeleteVertexArrays(1, &_glyphVAO);
   glDeleteBuffers(1, &_glyphVBO);
@@ -287,27 +254,6 @@ OpResult GlewRenderSystem::Deinit()
   return SUCCESS;
 }
 
-
-void GlewRenderSystem::Render()
-{
-  glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  _blocksShaderProgram->Set();
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, _blockTexture);
-
-  glm::mat4 view = _camera->GetView();
-  glm::mat4 projection = _camera->GetProjection();
-  glm::mat4 viewProjection = projection * view;
-
-  _blocksShaderProgram->SetViewProjection(viewProjection);
-
-  // Draw
-  glBindVertexArray(_blocksVAO);
-  glDrawArrays(GL_POINTS, 0, Chunk::BlocksNumber);
-}
 
 void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec3 color)
 {
@@ -389,4 +335,84 @@ void GlewRenderSystem::SetViewport(unsigned int width, unsigned int height)
 Camera* GlewRenderSystem::GetCamera()
 {
   return _camera;
+}
+
+
+void GlewRenderSystem::Clear(glm::vec4 color)
+{
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
+OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
+{
+  const ChunkKey key { x, y };
+
+  if (_chunks.contains(key))
+  {
+    return FAILURE;
+  }
+
+  ChunkData chunkData;
+  glGenVertexArrays(1, &chunkData.vao);
+  glGenBuffers(1, &chunkData.vbo);
+
+  glBindVertexArray(chunkData.vao);
+  glBindBuffer(GL_ARRAY_BUFFER, chunkData.vbo);
+
+  glBufferData(GL_ARRAY_BUFFER, sizeof(chunk->parts), chunk->parts, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(unsigned int), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  _chunks[key] = chunkData;
+
+  return SUCCESS;
+}
+
+OpResult GlewRenderSystem::UnloadChunk(int x, int y)
+{
+  const ChunkKey key { x, y };
+
+  const auto chunk = _chunks.find(key);
+
+  if (chunk == _chunks.end())
+  {
+    return FAILURE;
+  }
+
+  glDeleteVertexArrays(1, &chunk->second.vao);
+  glDeleteBuffers(1, &chunk->second.vbo);
+
+  _chunks.erase(chunk);
+
+  return SUCCESS;
+}
+
+void GlewRenderSystem::RenderChunks()
+{
+  _blocksShaderProgram->Set();
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, _blockTexture);
+
+  glm::mat4 view = _camera->GetView();
+  glm::mat4 projection = _camera->GetProjection();
+  glm::mat4 viewProjection = projection * view;
+  _blocksShaderProgram->SetViewProjection(viewProjection);
+
+  for (const auto& chunk : _chunks)
+  {
+    const ChunkKey& chunkKey = chunk.first;
+    const ChunkData& chunkData = chunk.second;
+
+    _blocksShaderProgram->SetInt("xOffset", chunkKey.x * 16);
+    _blocksShaderProgram->SetInt("yOffset", chunkKey.y * 16);
+
+    glBindVertexArray(chunkData.vao);
+    glDrawArrays(GL_POINTS, 0, Chunk::BlocksNumber);
+  }
 }

@@ -35,6 +35,7 @@ set(SOURCE_FILES
 	render/glew/glew.hpp
 	render/glew/glew_render_system.cpp
 	render/glew/glew_render_system.hpp
+	render/glew/glew_chunks_map.hpp
 	render/glew/glew_shader_type.hpp
 	render/glew/glew_shader_program.cpp
 	render/glew/glew_shader_program.hpp

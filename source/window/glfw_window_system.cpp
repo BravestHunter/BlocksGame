@@ -3,6 +3,9 @@
 #include <container.hpp>
 
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+
 GlfwWindowSystem::GlfwWindowSystem(unsigned int width, unsigned int height)
 {
   _width = width;
@@ -39,6 +42,8 @@ OpResult GlfwWindowSystem::Init()
   glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   glfwMakeContextCurrent(_window);
+
+  //glfwSwapInterval(0);
 
   _isInitialized = true;
   return SUCCESS;

@@ -49,6 +49,37 @@ OpResult Game::Run()
   unsigned int height = windowSystem->GetHeight();
   renderSystem->SetViewport(windowSystem->GetWidth(), windowSystem->GetHeight());
 
+
+  // Add sample chunk
+  Chunk* chunk = new Chunk();
+  for (int i = 0; i < Chunk::PartsNumber; i++)
+  {
+    ChunkPart& part = chunk->parts[i];
+  
+    for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+    {
+      part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
+    }
+  }
+  //for (int i = 0; i < Chunk::PartsNumber; i++)
+  //{
+  //  ChunkPart& part = chunk->parts[i];
+  //
+  //  for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+  //  {
+  //    part.blocks[j] = 1;
+  //  }
+  //}
+
+  int halfSize = 2;
+  for (int i = -halfSize; i < halfSize; i++)
+  {
+    for (int j = -halfSize; j < halfSize; j++)
+    {
+      renderSystem->LoadChunk(i,j, chunk);
+    }
+  }
+
   while (!windowSystem->IsCloseRequested())
   {
     float currentFrame = glfwGetTime();
@@ -57,7 +88,9 @@ OpResult Game::Run()
 
     ProcessInput(inputSystem, windowSystem, camera);
 
-    renderSystem->Render();
+    renderSystem->Clear(glm::vec4(0.63f, 0.85f, 0.97f, 1.0f));
+
+    renderSystem->RenderChunks();
 
     renderSystem->RenderAxes();
 

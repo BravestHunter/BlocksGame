@@ -5,6 +5,10 @@
 #include "glfw_convert.hpp"
 
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+
 GlfwInputSystem::GlfwInputSystem()
 {
   // Nothing to do here
