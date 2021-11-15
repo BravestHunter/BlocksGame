@@ -5,21 +5,21 @@ template<typename T>
 class DataBuffer
 {
 public:
-  DataBuffer::DataBuffer(T* data, int size) : _data(data), _size(size)
+  DataBuffer(T* data, int size) : _data(data), _size(size)
   {
   }
 
-  DataBuffer::~DataBuffer()
+  ~DataBuffer()
   {
     delete _data;
   }
 
-  T* DataBuffer::GetData() const
+  T* GetData() const
   {
     return _data;
   }
 
-  int DataBuffer::GetSize() const
+  int GetSize() const
   {
     return _size;
   }
