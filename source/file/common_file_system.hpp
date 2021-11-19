@@ -16,6 +16,5 @@ public:
   virtual OpResult Deinit() override;
 
   virtual OpResult ReadText(const char* path, std::string& text) override;
-  virtual OpResult ReadBinary(const char* path, DataBuffer<Byte>& buffer) override;
-  virtual OpResult ReadImage(const char* path, Image& image) override;
+  virtual OpResult ReadBinary(const char* path, std::vector<Byte>& buffer) override;
 };

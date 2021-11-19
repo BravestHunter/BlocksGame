@@ -1,12 +1,15 @@
-add_executable(UnitTests
+set(TESTS_SOURCE_FILES
 	unit_tests.hpp
 
 	crt_memory_checker.hpp
 	crt_memory_checker.cpp
 
 	data_buffer_tests.cpp
+
 	common_file_system_tests.cpp
 )
+
+add_executable(UnitTests ${TESTS_SOURCE_FILES})
 
 target_link_libraries(UnitTests 
 	PRIVATE

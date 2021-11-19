@@ -3,8 +3,10 @@
 #include <fstream>
 #include <sstream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
+#include <vector>
+
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb/stb_image.h"
 
 
 CommonFileSystem::CommonFileSystem()
@@ -45,21 +47,18 @@ OpResult CommonFileSystem::ReadText(const char* path, std::string& text)
 
     std::stringstream stringStream;
     stringStream << inputStream.rdbuf();
-    inputStream.close();
 
     text = stringStream.str();
   }
   catch (std::ifstream::failure& e)
   {
-    inputStream.close();
-
     return FAILURE;
   }
 
   return SUCCESS;
 }
 
-OpResult CommonFileSystem::ReadBinary(const char* path, DataBuffer<Byte>& buffer)
+OpResult CommonFileSystem::ReadBinary(const char* path, std::vector<Byte>& buffer)
 {
   std::ifstream inputStream;
 
@@ -68,37 +67,37 @@ OpResult CommonFileSystem::ReadBinary(const char* path, DataBuffer<Byte>& buffer
     inputStream.open(path, std::ios::in | std::ios::binary);
     if (!inputStream.is_open())
     {
-      inputStream.close();
       return FAILURE;
     }
 
     inputStream.seekg(0, std::ios::end);
     std::streampos size = inputStream.tellg();
-    Byte* bytes = new Byte[size];
+    if (size == 0)
+    {
+      return SUCCESS;
+    }
+
+    buffer = std::vector<Byte>(size);
     inputStream.seekg(0, std::ios::beg);
-    inputStream.read((char*)bytes, size);
-    buffer = DataBuffer<Byte>(bytes, size);
+    inputStream.read((char*)(&buffer[0]), size);
   }
   catch (std::ifstream::failure& e)
   {
-    inputStream.close();
-
-    return FAILURE;
-  }
-  inputStream.close();
-
-  return SUCCESS;
-}
-
-OpResult CommonFileSystem::ReadImage(const char* path, Image& image)
-{
-  stbi_set_flip_vertically_on_load(true);
-  
-  image.data = stbi_load(path, &image.width, &image.height, &image.channels, 0);
-  if (!image.data)
-  {
     return FAILURE;
   }
 
   return SUCCESS;
 }
+
+//OpResult CommonFileSystem::ReadImage(const char* path, Image& image)
+//{
+//  //stbi_set_flip_vertically_on_load(true);
+//  //
+//  //image.data = stbi_load(path, &image.width, &image.height, &image.channels, 0);
+//  //if (!image.data)
+//  //{
+//  //  return FAILURE;
+//  //}
+//
+//  return SUCCESS;
+//}
