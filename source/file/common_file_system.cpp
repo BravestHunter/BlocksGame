@@ -5,9 +5,6 @@
 
 #include <vector>
 
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb/stb_image.h"
-
 
 CommonFileSystem::CommonFileSystem()
 {
@@ -88,16 +85,3 @@ OpResult CommonFileSystem::ReadBinary(const char* path, std::vector<Byte>& buffe
 
   return SUCCESS;
 }
-
-//OpResult CommonFileSystem::ReadImage(const char* path, Image& image)
-//{
-//  //stbi_set_flip_vertically_on_load(true);
-//  //
-//  //image.data = stbi_load(path, &image.width, &image.height, &image.channels, 0);
-//  //if (!image.data)
-//  //{
-//  //  return FAILURE;
-//  //}
-//
-//  return SUCCESS;
-//}

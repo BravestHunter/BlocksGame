@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "image.hpp"
+#include "resource/glyph.hpp"
 #include "container.hpp"
 
 #define GLYPH_VERTEX_SHADER "/glyph.vs"
@@ -25,11 +25,8 @@
 #define AXES_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY AXES_FRAGMENT_SHADER
 
 #define AXES_FONTS_PATH RESOURCE_DIRECTORY "/fonts"
-#define QUICKSAND_FONT "/alter/Aller_Rg.ttf"
+#define QUICKSAND_FONT "/aller/Aller_Rg.ttf"
 #define QUICKSAND_FONTPATH AXES_FONTS_PATH QUICKSAND_FONT
-
-#define CONTAINER_TEXTURE TEXTURES_DIRECTORY "/container.jpg"
-#define DIRT_TEXTURE TEXTURES_DIRECTORY "/dirt.jpg"
 
 
 GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _blocksShaderProgram(NULL)
@@ -69,6 +66,7 @@ OpResult GlewRenderSystem::Init()
   }
 
   AbstractFileSystem* fileSystem = Container::GetFileSystem();
+  AbstractResourceSystem* resourceSystem = Container::GetResourceSystem();
 
   glewExperimental = GL_TRUE;
   glewInit();
@@ -109,10 +107,10 @@ OpResult GlewRenderSystem::Init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   Image texture;
-  OpResult result = fileSystem->ReadImage(DIRT_TEXTURE, texture);
+  OpResult result = resourceSystem->GetImage("Tex_Dirt", texture);
   if (result == SUCCESS)
   {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, &texture.data[0]);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
   else
@@ -122,29 +120,22 @@ OpResult GlewRenderSystem::Init()
 
   //================================
 
-  FT_Library ft;
-  if (FT_Init_FreeType(&ft))
+  AbstractFont* font = nullptr;
+  if (resourceSystem->GetFont("Font_Aller", &font) == FAILURE)
   {
     return FAILURE;
   }
-  FT_Face face;
-  if (FT_New_Face(ft, QUICKSAND_FONTPATH, 0, &face))
+  
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  
+  for (int i = 33; i < 127; i++)
   {
-    return FAILURE;
-  }
-
-  FT_Set_Pixel_Sizes(face, 0, 32);
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
-
-  for (GLubyte c = 0; c < 128; c++)
-  {
-    // Load character glyph
-    if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+    Glyph glyph;
+    if (font->GetGlyph(i, glyph, 24) == FAILURE)
     {
-      std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-      continue;
+      return FAILURE;
     }
+
     // Generate texture
     GLuint texture;
     glGenTextures(1, &texture);
@@ -153,12 +144,12 @@ OpResult GlewRenderSystem::Init()
       GL_TEXTURE_2D,
       0,
       GL_RED,
-      face->glyph->bitmap.width,
-      face->glyph->bitmap.rows,
+      glyph.texture.width,
+      glyph.texture.height,
       0,
       GL_RED,
       GL_UNSIGNED_BYTE,
-      face->glyph->bitmap.buffer
+      &glyph.texture.data[0]
     );
     // Set texture options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -168,13 +159,14 @@ OpResult GlewRenderSystem::Init()
     // Now store character for later use
     Character character = {
         texture,
-        glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-        glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-        face->glyph->advance.x
+        glm::ivec2(glyph.texture.width, glyph.texture.height),
+        glyph.bearing,
+        glyph.advance.x
     };
-    _characters.insert(std::pair<GLchar, Character>(c, character));
+    _characters.insert(std::pair<GLchar, Character>(i, character));
   }
 
+  delete font;
 
   glGenVertexArrays(1, &_glyphVAO);
   glGenBuffers(1, &_glyphVBO);
@@ -185,11 +177,7 @@ OpResult GlewRenderSystem::Init()
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-
-
-  FT_Done_Face(face);   // Завершение работы с шрифтом face
-  FT_Done_FreeType(ft); // Завершение работы FreeType
-
+  
   //================================
 
   float axesData[] = {

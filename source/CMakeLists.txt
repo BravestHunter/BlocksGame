@@ -10,7 +10,6 @@ set(SOURCE_FILES
 	camera_projection_type.hpp
 	game.cpp
 	game.hpp
-	image.hpp
 	camera.cpp
 	camera.hpp
 	data_buffer.hpp
@@ -18,6 +17,19 @@ set(SOURCE_FILES
 	file/abstract_file_system.hpp
 	file/common_file_system.cpp
 	file/common_file_system.hpp
+
+	resource/stb_headers.hpp
+	resource/freetype_headers.hpp
+	resource/resource_id.cpp
+	resource/resource_id.hpp
+	resource/image.hpp
+	resource/glyph.hpp
+	resource/abstract_font.hpp
+	resource/freetype_font.cpp
+	resource/freetype_font.hpp
+	resource/abstract_resource_system.hpp
+	resource/resource_system.cpp
+	resource/resource_system.hpp
 
 	window/abstract_window_system.hpp
 	window/glfw_window_system.cpp
@@ -82,6 +94,7 @@ target_compile_definitions(BlocksGameCore
 		RESOURCE_DIRECTORY="${RESOURCE_DIRECTORY}"
 		SHADERS_DIRECTORY="${RESOURCE_DIRECTORY}/shaders"
 		TEXTURES_DIRECTORY="${RESOURCE_DIRECTORY}/textures"
+		FONTS_DIRECTORY="${RESOURCE_DIRECTORY}/fonts"
 )
 
 

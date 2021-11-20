@@ -8,6 +8,11 @@ void Container::SetFileSystem(AbstractFileSystem* fileSystem)
   _fileSystem = fileSystem;
 }
 
+void Container::SetResorceSystem(AbstractResourceSystem* resourceSystem)
+{
+  _resourceSystem = resourceSystem;
+}
+
 void Container::SetWindowSystem(AbstractWindowSystem* windowSystem)
 {
   _windowSystem = windowSystem;
@@ -27,6 +32,11 @@ void Container::SetRenderSystem(AbstractRenderSystem* renderSystem)
 AbstractFileSystem* Container::GetFileSystem()
 {
   return _fileSystem;
+}
+
+AbstractResourceSystem* Container::GetResourceSystem()
+{
+  return _resourceSystem;
 }
 
 AbstractWindowSystem* Container::GetWindowSystem()
@@ -49,6 +59,7 @@ bool Container::IsReady()
 {
   return
     _fileSystem != nullptr && _fileSystem->IsInitialized() &&
+    _resourceSystem != nullptr && _resourceSystem->IsInitialized() &&
     _windowSystem != nullptr && _windowSystem->IsInitialized() &&
     _inputSystem != nullptr && _inputSystem->IsInitialized() &&
     _renderSystem != nullptr && _renderSystem->IsInitialized();
@@ -57,6 +68,7 @@ bool Container::IsReady()
 void Container::CleanUp()
 {
   delete _fileSystem;
+  delete _resourceSystem;
   delete _windowSystem;
   delete _inputSystem;
   delete _renderSystem;
@@ -64,6 +76,7 @@ void Container::CleanUp()
 
 
 AbstractFileSystem* Container::_fileSystem = nullptr;
+AbstractResourceSystem* Container::_resourceSystem = nullptr;
 AbstractWindowSystem* Container::_windowSystem = nullptr;
 AbstractInputSystem* Container::_inputSystem = nullptr;
 AbstractRenderSystem* Container::_renderSystem = nullptr;

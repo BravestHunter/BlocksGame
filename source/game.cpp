@@ -8,6 +8,7 @@
 #include "render/glew/glew_shader.hpp"
 
 #include "file/common_file_system.hpp"
+#include "resource/resource_system.hpp"
 #include "window/glfw_window_system.hpp"
 #include "input/glfw/glfw_input_system.hpp"
 #include "render/glew/glew_render_system.hpp"
@@ -17,12 +18,14 @@ Game::Game(unsigned int width, unsigned int height)
 {
   // Set all systems to container
   Container::SetFileSystem(new CommonFileSystem());
+  Container::SetResorceSystem(new ResourceSystem());
   Container::SetWindowSystem(new GlfwWindowSystem(width, height));
   Container::SetInputSystem(new GlfwInputSystem());
   Container::SetRenderSystem(new GlewRenderSystem());
 
   // Initialize systems in correct order
   Container::GetFileSystem()->Init();
+  Container::GetResourceSystem()->Init();
   Container::GetWindowSystem()->Init();
   Container::GetInputSystem()->Init();
   Container::GetRenderSystem()->Init();
@@ -34,6 +37,7 @@ Game::~Game()
   Container::GetRenderSystem()->Deinit();
   Container::GetInputSystem()->Deinit();
   Container::GetWindowSystem()->Deinit();
+  Container::GetResourceSystem()->Deinit();
   Container::GetFileSystem()->Deinit();
 }
 
@@ -71,7 +75,7 @@ OpResult Game::Run()
   //  }
   //}
 
-  int halfSize = 2;
+  int halfSize = 4;
   for (int i = -halfSize; i < halfSize; i++)
   {
     for (int j = -halfSize; j < halfSize; j++)
@@ -82,7 +86,7 @@ OpResult Game::Run()
 
   while (!windowSystem->IsCloseRequested())
   {
-    float currentFrame = glfwGetTime();
+    float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
