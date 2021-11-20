@@ -1,7 +1,7 @@
 #include "freetype_font.hpp"
 
 
-FreetypeFont::FreetypeFont(FT_Face face) : _freetypeFace(face)
+FreetypeFont::FreetypeFont(FT_Face face, Byte* data) : _freetypeFace(face), _data(data)
 {
   FT_Set_Pixel_Sizes(_freetypeFace, 0, _actualHeight);
 }
@@ -9,6 +9,7 @@ FreetypeFont::FreetypeFont(FT_Face face) : _freetypeFace(face)
 FreetypeFont::~FreetypeFont()
 {
   FT_Done_Face(_freetypeFace);
+  delete _data;
 }
 
 

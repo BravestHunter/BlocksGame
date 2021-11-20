@@ -79,9 +79,9 @@ OpResult ResourceSystem::GetImage(const ResourceId id, Image& image)
   }
 
   /// TODO: remove this sad bytes copying...
-  Byte* rawImageData = stbi_load_from_memory(&data[0], data.size(), &image.width, &image.height, &image.channels, 0);
-  image.data = std::vector<Byte>(rawImageData, rawImageData + image.height * image.width * image.channels);
-  delete rawImageData;
+  Byte* rawData = stbi_load_from_memory(&data[0], data.size(), &image.width, &image.height, &image.channels, 0);
+  image.data = std::vector<Byte>(rawData, rawData + image.height * image.width * image.channels);
+  delete rawData;
 
   return SUCCESS;
 }
@@ -94,14 +94,23 @@ OpResult ResourceSystem::GetFont(const ResourceId id, AbstractFont** font)
     return FAILURE;
   }
 
-  // TODO: use file system to load fonts...
-  FT_Face face;
-  if (FT_New_Face(_freetypeLibrary, resource->second, 0, &face) != 0)
+  std::vector<Byte> data;
+  if (Container::GetFileSystem()->ReadBinary(resource->second, data) == FAILURE)
   {
     return FAILURE;
   }
 
-  *font = new FreetypeFont(face);
+  /// TODO: remove this sad bytes copying...
+  Byte* rawData = new Byte[data.size()];
+  std::memcpy(rawData, &data[0], data.size());
+
+  FT_Face face;
+  if (FT_New_Memory_Face(_freetypeLibrary, rawData, data.size(), 0, &face) != 0)
+  {
+    return FAILURE;
+  }
+
+  *font = new FreetypeFont(face, rawData);
 
   return SUCCESS;
 }
