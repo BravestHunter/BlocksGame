@@ -21,6 +21,7 @@ public:
   virtual OpResult Init() override;
   virtual OpResult Deinit() override;
 
+  virtual OpResult GetString(const ResourceId id, std::string& str) override;
   virtual OpResult GetImage(const ResourceId id, Image& image) override;
   virtual OpResult GetFont(const ResourceId id, AbstractFont** font) override;
 

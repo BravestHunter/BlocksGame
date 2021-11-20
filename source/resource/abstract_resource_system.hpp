@@ -12,6 +12,7 @@
 class AbstractResourceSystem : public AbstractSystem
 {
 public:
+  virtual OpResult GetString(const ResourceId id, std::string& str) = 0;
   virtual OpResult GetImage(const ResourceId id, Image& image) = 0;
   virtual OpResult GetFont(const ResourceId id, AbstractFont** font) = 0;
 };

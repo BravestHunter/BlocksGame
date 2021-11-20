@@ -21,7 +21,7 @@ TEST_CASE("Common file system read empty text file test")
   fileSystem.Init();
 
   std::string text;
-  fileSystem.ReadText(TEST_RESOURCE_DIRECTORY "/empty_file.txt", text);
+  fileSystem.ReadString(TEST_RESOURCE_DIRECTORY "/empty_file.txt", text);
 
   SECTION("File text should be empty")
   {
@@ -37,7 +37,7 @@ TEST_CASE("Common file system read simple text file test")
   fileSystem.Init();
 
   std::string text;
-  fileSystem.ReadText(TEST_RESOURCE_DIRECTORY "/simple_text_file.txt", text);
+  fileSystem.ReadString(TEST_RESOURCE_DIRECTORY "/simple_text_file.txt", text);
 
   SECTION("File text should be equal to expected")
   {

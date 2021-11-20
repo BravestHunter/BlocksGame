@@ -13,12 +13,12 @@
 
 ResourceSystem::ResourceSystem()
 {
-
+  // Nothing to do here
 }
 
 ResourceSystem::~ResourceSystem()
 {
-
+  // Nothing to do here
 }
 
 
@@ -53,16 +53,27 @@ OpResult ResourceSystem::Deinit()
 }
 
 
+OpResult ResourceSystem::GetString(const ResourceId id, std::string& str)
+{
+  auto resource = _recourcePaths.find(id);
+  if (resource == _recourcePaths.end())
+  {
+    return FAILURE;
+  }
+
+  return Container::GetFileSystem()->ReadString(resource->second, str);
+}
+
 OpResult ResourceSystem::GetImage(const ResourceId id, Image& image)
 {
-  auto resourcePath = _recourcePaths.find(id);
-  if (resourcePath == _recourcePaths.end())
+  auto resource = _recourcePaths.find(id);
+  if (resource == _recourcePaths.end())
   {
     return FAILURE;
   }
 
   std::vector<Byte> data;
-  if (Container::GetFileSystem()->ReadBinary(DIRT_TEXTURE, data) == FAILURE)
+  if (Container::GetFileSystem()->ReadBinary(resource->second, data) == FAILURE)
   {
     return FAILURE;
   }
@@ -77,15 +88,15 @@ OpResult ResourceSystem::GetImage(const ResourceId id, Image& image)
 
 OpResult ResourceSystem::GetFont(const ResourceId id, AbstractFont** font)
 {
-  auto fontPath = _recourcePaths.find(id);
-  if (fontPath == _recourcePaths.end())
+  auto resource = _recourcePaths.find(id);
+  if (resource == _recourcePaths.end())
   {
     return FAILURE;
   }
 
   // TODO: use file system to load fonts...
   FT_Face face;
-  if (FT_New_Face(_freetypeLibrary, fontPath->second, 0, &face) != 0)
+  if (FT_New_Face(_freetypeLibrary, resource->second, 0, &face) != 0)
   {
     return FAILURE;
   }

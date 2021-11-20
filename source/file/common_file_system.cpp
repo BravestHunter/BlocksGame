@@ -30,7 +30,7 @@ OpResult CommonFileSystem::Deinit()
 }
 
 
-OpResult CommonFileSystem::ReadText(const char* path, std::string& text)
+OpResult CommonFileSystem::ReadString(const char* path, std::string& str)
 {
   std::ifstream inputStream;
 
@@ -45,7 +45,7 @@ OpResult CommonFileSystem::ReadText(const char* path, std::string& text)
     std::stringstream stringStream;
     stringStream << inputStream.rdbuf();
 
-    text = stringStream.str();
+    str = stringStream.str();
   }
   catch (std::ifstream::failure& e)
   {

@@ -15,6 +15,6 @@ public:
   virtual OpResult Init() override;
   virtual OpResult Deinit() override;
 
-  virtual OpResult ReadText(const char* path, std::string& text) override;
+  virtual OpResult ReadString(const char* path, std::string& str) override;
   virtual OpResult ReadBinary(const char* path, std::vector<Byte>& buffer) override;
 };

@@ -16,6 +16,6 @@ public:
   AbstractFileSystem() = default;
   virtual ~AbstractFileSystem() override = default;
 
-  virtual OpResult ReadText(const char* path, std::string& text) = 0;
+  virtual OpResult ReadString(const char* path, std::string& str) = 0;
   virtual OpResult ReadBinary(const char* path, std::vector<Byte>& buffer) = 0;
 };
