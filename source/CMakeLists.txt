@@ -31,6 +31,14 @@ set(SOURCE_FILES
 	resource/resource_system.cpp
 	resource/resource_system.hpp
 
+	world/block.hpp
+	world/chunk_part.hpp
+	world/chunk.hpp
+	world/chunk_position.hpp
+	world/chunk_storage.hpp
+	world/world.cpp
+	world/world.hpp
+
 	window/abstract_window_system.hpp
 	window/glfw_window_system.cpp
 	window/glfw_window_system.hpp
@@ -64,11 +72,6 @@ set(SOURCE_FILES
 	render/glew/glew_shader.hpp
 	render/glew/glew_block_shader_program.cpp
 	render/glew/glew_block_shader_program.hpp
-
-	model/model.hpp
-	model/block.hpp
-	model/chunk_part.hpp
-	model/chunk.hpp
 )
 
 add_library(BlocksGameCore STATIC ${SOURCE_FILES})

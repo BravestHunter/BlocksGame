@@ -13,7 +13,7 @@
 #include "glew_block_shader_program.hpp"
 #include "glew_chunks_map.hpp"
 
-#include "model/model.hpp"
+#include "world/world.hpp"
 
 
 class GlewRenderSystem : public AbstractRenderSystem

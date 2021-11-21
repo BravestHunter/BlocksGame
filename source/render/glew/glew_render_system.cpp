@@ -34,7 +34,7 @@ GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _bl
   _camera = new Camera(
     CameraProjectionType::Perspective,
     glm::vec3(0.0f, 0.0f, 1.0f),
-    glm::vec3(-16.0f, -16.0f, 256.0f),
+    glm::vec3(8.0f, 8.0f, 256.0f),
     0.0f,
     0.0
   );

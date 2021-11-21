@@ -53,34 +53,14 @@ OpResult Game::Run()
   unsigned int height = windowSystem->GetHeight();
   renderSystem->SetViewport(windowSystem->GetWidth(), windowSystem->GetHeight());
 
-
-  // Add sample chunk
-  Chunk* chunk = new Chunk();
-  //for (int i = 0; i < Chunk::PartsNumber; i++)
-  //{
-  //  ChunkPart& part = chunk->parts[i];
-  //
-  //  for (int j = 0; j < ChunkPart::BlocksNumber; j++)
-  //  {
-  //    part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
-  //  }
-  //}
-  for (int i = 0; i < Chunk::PartsNumber; i++)
+  // Initial chunks load
+  _lastCenterChunk = glm::ivec2(0, 0);
+  int a = _lastCenterChunk.x - _renderRadius;
+  for (int i = _lastCenterChunk.x - _renderRadius, lastX = _lastCenterChunk.x + _renderRadius; i <= lastX; i++)
   {
-    ChunkPart& part = chunk->parts[i];
-  
-    for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+    for (int j = _lastCenterChunk.y - _renderRadius, lastY = _lastCenterChunk.y + _renderRadius; j <= lastY; j++)
     {
-      part.blocks[j] = 1;
-    }
-  }
-
-  int halfSize = 4;
-  for (int i = -halfSize; i < halfSize; i++)
-  {
-    for (int j = -halfSize; j < halfSize; j++)
-    {
-      renderSystem->LoadChunk(i,j, chunk);
+      renderSystem->LoadChunk(i, j, _world.GetChunk(i, j));
     }
   }
 
@@ -91,6 +71,7 @@ OpResult Game::Run()
     lastFrame = currentFrame;
 
     ProcessInput(inputSystem, windowSystem, camera);
+    UpdateLoadedChunks(camera->GetPosition());
 
     renderSystem->Clear(glm::vec4(0.63f, 0.85f, 0.97f, 1.0f));
 
@@ -154,4 +135,50 @@ void Game::ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* 
   }
 
   inputSystem->ClearMouseDelta();
+}
+
+
+void Game::UpdateLoadedChunks(const glm::vec3& position)
+{
+  glm::ivec2 centerChunk = glm::ivec2(position.x / 16, position.y / 16);
+  if (centerChunk == _lastCenterChunk)
+  {
+    return;
+  }
+
+  AbstractRenderSystem* renderSystem = Container::GetRenderSystem();
+
+  // Unload chunks
+  for (int i = _lastCenterChunk.x - _renderRadius, lastX = _lastCenterChunk.x + _renderRadius; i <= lastX; i++)
+  {
+    for (int j = _lastCenterChunk.y - _renderRadius, lastY = _lastCenterChunk.y + _renderRadius; j <= lastY; j++)
+    {
+      if (std::abs(centerChunk.x - i) <= _renderRadius &&
+          std::abs(centerChunk.y - j) <= _renderRadius)
+      {
+        // Chunk still should be loaded
+        continue;
+      }
+
+      renderSystem->UnloadChunk(i, j);
+    }
+  }
+
+  // Load chunks
+  for (int i = centerChunk.x - _renderRadius, lastX = centerChunk.x + _renderRadius; i <= lastX; i++)
+  {
+    for (int j = centerChunk.y - _renderRadius, lastY = centerChunk.y + _renderRadius; j <= lastY; j++)
+    {
+      if (std::abs(_lastCenterChunk.x - i) <= _renderRadius &&
+          std::abs(_lastCenterChunk.y - j) <= _renderRadius)
+      {
+        // Chunk is already loaded
+        continue;
+      }
+
+      renderSystem->LoadChunk(i, j, _world.GetChunk(i, j));
+    }
+  }
+
+  _lastCenterChunk = centerChunk;
 }

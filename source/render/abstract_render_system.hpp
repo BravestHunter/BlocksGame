@@ -4,7 +4,7 @@
 
 #include "abstract_system.hpp"
 #include "camera.hpp"
-#include "model/model.hpp"
+#include "world/world.hpp"
 
 class AbstractRenderSystem : public AbstractSystem
 {
