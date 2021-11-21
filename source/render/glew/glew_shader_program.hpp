@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glew.hpp"
+#include "glew_headers.hpp"
 #include "glew_shader.hpp"
 
 

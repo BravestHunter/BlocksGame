@@ -4,7 +4,8 @@
 #include <unordered_map>
 
 #include "render/abstract_render_system.hpp"
-#include "glew.hpp"
+#include "glew_headers.hpp"
+#include "glew_texture.hpp"
 #include "glew_shader.hpp"
 #include "glew_shader_program.hpp"
 #include "glew_block_shader_program.hpp"
@@ -48,7 +49,7 @@ private:
   Camera* _camera;
 
   GlewChunksStorage _chunks {};
-  unsigned int _blockTexture;
+  GlewTexture* _blockTexture;
   GlewBlockShaderProgram* _blocksShaderProgram;
 
   std::map<GLchar, Character> _characters;

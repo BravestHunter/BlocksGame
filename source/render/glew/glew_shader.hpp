@@ -1,15 +1,16 @@
 #pragma once
 
-#include "glew.hpp"
+#include "glew_headers.hpp"
+#include "glew_entity.hpp"
 #include "glew_shader_type.hpp"
 #include "container.hpp"
 
 
-class GlewShader
+class GlewShader : public GlewEntity
 {
 public:
   GlewShader(const char* source, GlewShaderType shaderType);
-  ~GlewShader();
+  virtual ~GlewShader() override;
 
   GLuint GetId() const;
   bool IsCompiled() const;

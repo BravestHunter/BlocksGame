@@ -47,7 +47,11 @@ set(SOURCE_FILES
 	input/glfw/glfw_convert.hpp
 
 	render/abstract_render_system.hpp
-	render/glew/glew.hpp
+	render/glew/glew_headers.hpp
+	render/glew/glew_entity.cpp
+	render/glew/glew_entity.hpp
+	render/glew/glew_texture.cpp
+	render/glew/glew_texture.hpp
 	render/glew/glew_render_system.cpp
 	render/glew/glew_render_system.hpp
 	render/glew/glew_chunks_map.hpp

@@ -44,8 +44,6 @@ GlewRenderSystem::~GlewRenderSystem()
 {
   delete _camera;
 
-  glDeleteTextures(1, &_blockTexture);
-
   for (auto c = _characters.begin(); c != _characters.end(); c++)
   {
     glDeleteTextures(1, &c->second.TextureID);
@@ -78,9 +76,9 @@ OpResult GlewRenderSystem::Init()
   }
 
   std::string source;
-  fileSystem->ReadText(GLYPH_VERTEX_SHADER_PATH, source);
+  fileSystem->ReadString(GLYPH_VERTEX_SHADER_PATH, source);
   GlewShader glyphVertexShader(source.c_str(), GlewShaderType::Vertex);
-  fileSystem->ReadText(GLYPH_FRAGMENT_SHADER_PATH, source);
+  fileSystem->ReadString(GLYPH_FRAGMENT_SHADER_PATH, source);
   GlewShader glyphFragmentShader(source.c_str(), GlewShaderType::Fragment);
   _glyphShaderProgram = new GlewShaderProgram(glyphVertexShader, glyphFragmentShader);
   if (!_glyphShaderProgram->IsLinked())
@@ -88,9 +86,9 @@ OpResult GlewRenderSystem::Init()
     return FAILURE;
   }
 
-  fileSystem->ReadText(AXES_VERTEX_SHADER_PATH, source);
+  fileSystem->ReadString(AXES_VERTEX_SHADER_PATH, source);
   GlewShader axesVertexShader(source.c_str(), GlewShaderType::Vertex);
-  fileSystem->ReadText(AXES_FRAGMENT_SHADER_PATH, source);
+  fileSystem->ReadString(AXES_FRAGMENT_SHADER_PATH, source);
   GlewShader axesFragmentShader(source.c_str(), GlewShaderType::Fragment);
   _axesShaderProgram = new GlewShaderProgram(axesVertexShader, axesFragmentShader);
   if (!_axesShaderProgram->IsLinked())
@@ -100,23 +98,12 @@ OpResult GlewRenderSystem::Init()
 
   //================================
 
-  glGenTextures(1, &_blockTexture);
-  glBindTexture(GL_TEXTURE_2D, _blockTexture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  Image texture;
-  OpResult result = resourceSystem->GetImage("Tex_Dirt", texture);
-  if (result == SUCCESS)
+  Image blockTexture;
+  if (resourceSystem->GetImage("Tex_Dirt", blockTexture) == FAILURE)
   {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, &texture.data[0]);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    return FAILURE;
   }
-  else
-  {
-    std::cout << "Failed to load texture" << std::endl;
-  }
+  _blockTexture = new GlewTexture(blockTexture);
 
   //================================
 
@@ -223,6 +210,8 @@ OpResult GlewRenderSystem::Deinit()
   {
     return FAILURE;
   }
+
+  delete _blockTexture;
 
   for (const auto& chunk : _chunks)
   {
@@ -384,8 +373,7 @@ void GlewRenderSystem::RenderChunks()
 {
   _blocksShaderProgram->Set();
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, _blockTexture);
+  _blockTexture->Set(GL_TEXTURE_2D);
 
   glm::mat4 view = _camera->GetView();
   glm::mat4 projection = _camera->GetProjection();

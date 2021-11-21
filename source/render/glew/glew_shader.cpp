@@ -45,7 +45,7 @@ OpResult GlewShader::LoadFromFile(const char* path, GlewShaderType shaderType, G
 {
 	AbstractFileSystem* fileSystem = Container::GetFileSystem();
 	std::string source;
-	if (fileSystem->ReadText(path, source) == FAILURE)
+	if (fileSystem->ReadString(path, source) == FAILURE)
 	{
 		return FAILURE;
 	}
