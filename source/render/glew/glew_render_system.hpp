@@ -6,6 +6,8 @@
 #include "render/abstract_render_system.hpp"
 #include "glew_headers.hpp"
 #include "glew_texture.hpp"
+#include "glew_glyph.hpp"
+
 #include "glew_shader.hpp"
 #include "glew_shader_program.hpp"
 #include "glew_block_shader_program.hpp"
@@ -13,13 +15,6 @@
 
 #include "model/model.hpp"
 
-
-struct Character {
-  GLuint     TextureID; // ID текстуры глифа
-  glm::ivec2 Size;      // Размеры глифа
-  glm::ivec2 Bearing;   // Смещение верхней левой точки глифа
-  GLuint     Advance;   // Горизонтальное смещение до начала следующего глифа
-};
 
 class GlewRenderSystem : public AbstractRenderSystem
 {
@@ -52,7 +47,7 @@ private:
   GlewTexture* _blockTexture;
   GlewBlockShaderProgram* _blocksShaderProgram;
 
-  std::map<GLchar, Character> _characters;
+  std::map<GLchar, GlewGlyph*> _characters;
   GLuint _glyphVAO;
   GLuint _glyphVBO;
   GlewShaderProgram* _glyphShaderProgram;

@@ -44,11 +44,6 @@ GlewRenderSystem::~GlewRenderSystem()
 {
   delete _camera;
 
-  for (auto c = _characters.begin(); c != _characters.end(); c++)
-  {
-    glDeleteTextures(1, &c->second.TextureID);
-  }
-
   delete _blocksShaderProgram;
   delete _glyphShaderProgram;
   delete _axesShaderProgram;
@@ -124,33 +119,27 @@ OpResult GlewRenderSystem::Init()
     }
 
     // Generate texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_RED,
-      glyph.texture.width,
-      glyph.texture.height,
-      0,
-      GL_RED,
-      GL_UNSIGNED_BYTE,
-      &glyph.texture.data[0]
-    );
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // Now store character for later use
-    Character character = {
-        texture,
-        glm::ivec2(glyph.texture.width, glyph.texture.height),
-        glyph.bearing,
-        glyph.advance.x
-    };
-    _characters.insert(std::pair<GLchar, Character>(i, character));
+    //GLuint texture;
+    //glGenTextures(1, &texture);
+    //glBindTexture(GL_TEXTURE_2D, texture);
+    //glTexImage2D(
+    //  GL_TEXTURE_2D,
+    //  0,
+    //  GL_RED,
+    //  glyph.texture.width,
+    //  glyph.texture.height,
+    //  0,
+    //  GL_RED,
+    //  GL_UNSIGNED_BYTE,
+    //  &glyph.texture.data[0]
+    //);
+    //// Set texture options
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    _characters[i] = new GlewGlyph(glyph);
   }
 
   delete font;
@@ -219,6 +208,11 @@ OpResult GlewRenderSystem::Deinit()
     glDeleteBuffers(1, &chunk.second.vbo);
   }
 
+  for (const auto& glyph : _characters)
+  {
+    delete glyph.second;
+  }
+
   //================================
   glDeleteVertexArrays(1, &_glyphVAO);
   glDeleteBuffers(1, &_glyphVBO);
@@ -251,14 +245,14 @@ void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec
   std::string::const_iterator c;
   for (c = text.begin(); c != text.end(); c++)
   {
-    Character ch = _characters[*c];
+    GlewGlyph& glyph = *_characters[*c];
 
-    GLfloat xpos = x + ch.Bearing.x * scale;
-    //GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-    GLfloat ypos = y + (ch.Size.y - ch.Bearing.y) * scale;
+    GLfloat xpos = x + glyph.GetBearing().x * scale;
+    //GLfloat ypos = y - (glyph.GetSize().y - glyph.GetBearing().y) * scale;
+    GLfloat ypos = y + (glyph.GetSize().y - glyph.GetBearing().y) * scale;
 
-    GLfloat w = ch.Size.x * scale;
-    GLfloat h = ch.Size.y * scale;
+    GLfloat w = glyph.GetSize().x * scale;
+    GLfloat h = glyph.GetSize().y * scale;
     // Update VBO for each character
     GLfloat vertices[6][4] = {
         { xpos, ypos + h, 0.0, 0.0 },
@@ -269,7 +263,7 @@ void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec
         { xpos + w, ypos + h, 1.0, 0.0 }
     };
     // Render glyph texture over quad
-    glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+    glBindTexture(GL_TEXTURE_2D, glyph.GetId());
     // Update content of VBO memory
     glBindBuffer(GL_ARRAY_BUFFER, _glyphVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -277,7 +271,7 @@ void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec
     // Render quad
     glDrawArrays(GL_TRIANGLES, 0, 6);
     // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-    x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+    x += (glyph.GetAdvance().x >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
   }
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);
