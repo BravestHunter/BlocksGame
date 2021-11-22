@@ -93,12 +93,12 @@ OpResult GlewRenderSystem::Init()
 
   //================================
 
-  Image blockTexture;
-  if (resourceSystem->GetImage("Tex_Dirt", blockTexture) == FAILURE)
+  Image blockTextureAltlas;
+  if (resourceSystem->GetImage("Tex_BlockAtlas", blockTextureAltlas) == FAILURE)
   {
     return FAILURE;
   }
-  _blockTexture = new GlewTexture(blockTexture);
+  _blockTextureAltlas = new GlewTexture(blockTextureAltlas);
 
   //================================
 
@@ -117,27 +117,6 @@ OpResult GlewRenderSystem::Init()
     {
       return FAILURE;
     }
-
-    // Generate texture
-    //GLuint texture;
-    //glGenTextures(1, &texture);
-    //glBindTexture(GL_TEXTURE_2D, texture);
-    //glTexImage2D(
-    //  GL_TEXTURE_2D,
-    //  0,
-    //  GL_RED,
-    //  glyph.texture.width,
-    //  glyph.texture.height,
-    //  0,
-    //  GL_RED,
-    //  GL_UNSIGNED_BYTE,
-    //  &glyph.texture.data[0]
-    //);
-    //// Set texture options
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     _characters[i] = new GlewGlyph(glyph);
   }
@@ -200,7 +179,7 @@ OpResult GlewRenderSystem::Deinit()
     return FAILURE;
   }
 
-  delete _blockTexture;
+  delete _blockTextureAltlas;
 
   for (const auto& chunk : _chunks)
   {
@@ -333,7 +312,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
   glBindBuffer(GL_ARRAY_BUFFER, chunkData.vbo);
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(chunk->parts), chunk->parts, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(unsigned int), (void*)0);
+  glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(unsigned int), (void*)0);
   glEnableVertexAttribArray(0);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -367,7 +346,7 @@ void GlewRenderSystem::RenderChunks()
 {
   _blocksShaderProgram->Set();
 
-  _blockTexture->Set(GL_TEXTURE_2D);
+  _blockTextureAltlas->Set(GL_TEXTURE_2D);
 
   glm::mat4 view = _camera->GetView();
   glm::mat4 projection = _camera->GetProjection();

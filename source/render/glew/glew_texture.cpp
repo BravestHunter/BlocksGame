@@ -10,12 +10,16 @@ GlewTexture::GlewTexture(Image& texture)
 
   // Temporary solution...
   GLuint channelsMode = GL_RGB;
+  if (texture.channels == 4)
+    channelsMode = GL_RGBA;
   glTexImage2D(GL_TEXTURE_2D, 0, channelsMode, texture.width, texture.height, 0, channelsMode, GL_UNSIGNED_BYTE, &texture.data[0]);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   glGenerateMipmap(GL_TEXTURE_2D);
 }

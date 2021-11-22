@@ -44,7 +44,7 @@ private:
   Camera* _camera;
 
   GlewChunksStorage _chunks {};
-  GlewTexture* _blockTexture;
+  GlewTexture* _blockTextureAltlas;
   GlewBlockShaderProgram* _blocksShaderProgram;
 
   std::map<GLchar, GlewGlyph*> _characters;

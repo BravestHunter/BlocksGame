@@ -1,11 +1,7 @@
 #version 330 core
-layout (location = 0) in int aBlock;
+layout (location = 0) in uint aBlock;
 
-out int block;
-
-out VS_TO_GEOM {
-    int block;
-} vs_to_geom;
+out uint block;
 
 uniform int xOffset;
 uniform int yOffset;
@@ -25,6 +21,6 @@ vec4 CalculatePosition()
 
 void main()
 {
-    vs_to_geom.block = aBlock;
+    block = aBlock;
     gl_Position = CalculatePosition();
 }

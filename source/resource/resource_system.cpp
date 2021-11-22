@@ -4,8 +4,7 @@
 #include "freetype_headers.hpp"
 
 
-#define CONTAINER_TEXTURE TEXTURES_DIRECTORY "/container.jpg"
-#define DIRT_TEXTURE TEXTURES_DIRECTORY "/dirt.jpg"
+#define BLOCK_TEXTURE_ATLAS TEXTURES_DIRECTORY "/blocks_atlas_texture.png"
 
 #define ALLER_FONT "/aller/Aller_Rg.ttf"
 #define ALLER_FONTPATH FONTS_DIRECTORY ALLER_FONT
@@ -25,8 +24,11 @@ ResourceSystem::~ResourceSystem()
 OpResult ResourceSystem::Init()
 {
   // TODO: load resource paths data from some resources-config file
-  _recourcePaths["Tex_Dirt"] = DIRT_TEXTURE;
+  _recourcePaths["Tex_BlockAtlas"] = BLOCK_TEXTURE_ATLAS;
   _recourcePaths["Font_Aller"] = ALLER_FONTPATH;
+
+  // Prepare stb
+  stbi_set_flip_vertically_on_load(true);
 
   // Initialize freetype library
   if (FT_Init_FreeType(&_freetypeLibrary))

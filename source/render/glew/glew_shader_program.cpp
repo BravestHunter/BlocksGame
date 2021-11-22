@@ -1,5 +1,7 @@
 #include "glew_shader_program.hpp"
 
+#include <iostream>
+
 
 GlewShaderProgram::GlewShaderProgram(const GlewShader& vertexShader, const GlewShader& fragmentShader)
 {
@@ -197,4 +199,11 @@ void GlewShaderProgram::Link()
   GLint isLinked = 0;
   glGetProgramiv(_shaderProgram, GL_LINK_STATUS, &isLinked);
   _isLinked = (bool)isLinked;
+
+  if (!_isLinked)
+  {
+    GLchar infoLog[512];
+    glGetProgramInfoLog(_shaderProgram, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+  }
 }

@@ -59,13 +59,22 @@ Chunk* World::GenerateChunk(const ChunkPosition& position)
   //    part.blocks[j] = 1;
   //  }
   //}
+  //for (int i = 0; i < Chunk::PartsNumber; i++)
+  //{
+  //  ChunkPart& part = chunk->parts[i];
+  //
+  //  for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+  //  {
+  //    part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
+  //  }
+  //}
   for (int i = 0; i < Chunk::PartsNumber; i++)
   {
     ChunkPart& part = chunk->parts[i];
-  
+
     for (int j = 0; j < ChunkPart::BlocksNumber; j++)
     {
-      part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
+      part.blocks[j] = rand() % 3;
     }
   }
 

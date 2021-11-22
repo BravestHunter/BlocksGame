@@ -63,7 +63,7 @@ OpResult Game::Run()
       renderSystem->LoadChunk(i, j, _world.GetChunk(i, j));
     }
   }
-
+  
   while (!windowSystem->IsCloseRequested())
   {
     float currentFrame = (float)glfwGetTime();
