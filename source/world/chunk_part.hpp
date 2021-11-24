@@ -10,6 +10,7 @@ struct ChunkPart
   const static size_t Length = 16;
   const static size_t Width = 16;
   const static size_t Height = 16;
+  const static size_t Layer = Length * Width;
   const static size_t BlocksNumber = Length * Width * Height;
 
   Block blocks[BlocksNumber];

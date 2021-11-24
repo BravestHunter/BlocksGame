@@ -1,14 +1,16 @@
 #include "world.hpp"
 
+#include "utils/perlin_noise_2d.hpp"
+
 
 World::World()
 {
-
+  _noise = new PerlinNoise2D(rand());
 }
 
 World::~World()
 {
-
+  delete _noise;
 }
 
 
@@ -68,15 +70,36 @@ Chunk* World::GenerateChunk(const ChunkPosition& position)
   //    part.blocks[j] = rand() % 4 > 0 ? 0 : 1;
   //  }
   //}
-  for (int i = 0; i < Chunk::PartsNumber; i++)
-  {
-    ChunkPart& part = chunk->parts[i];
+  //for (int i = 0; i < Chunk::PartsNumber; i++)
+  //{
+  //  ChunkPart& part = chunk->parts[i];
+  //
+  //  for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+  //  {
+  //    part.blocks[j] = rand() % 3;
+  //  }
+  //}
 
-    for (int j = 0; j < ChunkPart::BlocksNumber; j++)
+  float* values = new float[256];
+  _noise->GetValues(values, position.position.x * 16, position.position.y * 16, 16, 16);
+
+  for (int x = 0; x < Chunk::Length; x++)
+  {
+    for (int y = 0; y < Chunk::Width; y++)
     {
-      part.blocks[j] = rand() % 3;
+      int height = (int)((values[x + y * 16] / 2 + 0.5) * Chunk::Height);
+
+      for (int z = 0; z < height; z++)
+      {
+        int part = z / ChunkPart::Height;
+        int h = z - part * ChunkPart::Height;
+      
+        chunk->parts[part].blocks[x + y * ChunkPart::Length + h * ChunkPart::Layer] = (height > 128 ? 1 : 2);
+      }
     }
   }
+
+  delete values;
 
   return chunk;
 }

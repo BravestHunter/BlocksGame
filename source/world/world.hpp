@@ -2,7 +2,7 @@
 
 #include "chunk_storage.hpp"
 #include "op_result.hpp"
-
+#include "utils/abstract_noise_2d.hpp"
 
 class World
 {
@@ -14,6 +14,7 @@ public:
 
 private:
   ChunkStorage _chunks {};
+  AbstractNoise2D* _noise;
 
   OpResult LoadChunk(int x, int y);
   OpResult UnloadChunk(int x, int y);

@@ -9,9 +9,9 @@ uniform int yOffset;
 
 vec4 CalculatePosition()
 {
-    int x = gl_VertexID / 4096;
-    int y = (gl_VertexID - x * 4096) / 256;
-    int z = gl_VertexID - x * 4096 - y * 256;
+    int z = gl_VertexID / 256;
+    int y = (gl_VertexID - z * 256) / 16;
+    int x = gl_VertexID - z * 256 - y * 16;
 
     x = x + xOffset;
     y = y + yOffset;

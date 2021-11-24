@@ -14,6 +14,10 @@ set(SOURCE_FILES
 	camera.hpp
 	data_buffer.hpp
 
+	utils/abstract_noise_2d.hpp
+	utils/perlin_noise_2d.cpp
+	utils/perlin_noise_2d.hpp
+
 	file/abstract_file_system.hpp
 	file/common_file_system.cpp
 	file/common_file_system.hpp
@@ -96,6 +100,7 @@ target_link_libraries(BlocksGameCore
 		stb
 		glm
 		freetype
+		FastNoise
 ) 
 
 target_compile_definitions(BlocksGameCore

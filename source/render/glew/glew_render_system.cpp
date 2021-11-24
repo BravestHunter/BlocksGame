@@ -224,11 +224,17 @@ void GlewRenderSystem::RenderString(std::string text, float x, float y, glm::vec
   std::string::const_iterator c;
   for (c = text.begin(); c != text.end(); c++)
   {
+    if (*c == 32)
+    {
+      x += 5.0;
+      continue;
+    }
+
     GlewGlyph& glyph = *_characters[*c];
 
     GLfloat xpos = x + glyph.GetBearing().x * scale;
-    //GLfloat ypos = y - (glyph.GetSize().y - glyph.GetBearing().y) * scale;
-    GLfloat ypos = y + (glyph.GetSize().y - glyph.GetBearing().y) * scale;
+    GLfloat ypos = y - (glyph.GetSize().y - glyph.GetBearing().y) * scale;
+    //GLfloat ypos = y + (glyph.GetSize().y - glyph.GetBearing().y) * scale;
 
     GLfloat w = glyph.GetSize().x * scale;
     GLfloat h = glyph.GetSize().y * scale;
