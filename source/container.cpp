@@ -3,6 +3,11 @@
 #include <exception>
 
 
+void Container::SetLogSystem(AbstructLogSystem* logSystem)
+{
+  _logSystem = logSystem;
+}
+
 void Container::SetFileSystem(AbstractFileSystem* fileSystem)
 {
   _fileSystem = fileSystem;
@@ -28,6 +33,11 @@ void Container::SetRenderSystem(AbstractRenderSystem* renderSystem)
   _renderSystem = renderSystem;
 }
 
+
+AbstructLogSystem* Container::GetLogSystem()
+{
+  return _logSystem;
+}
 
 AbstractFileSystem* Container::GetFileSystem()
 {
@@ -58,6 +68,7 @@ AbstractRenderSystem* Container::GetRenderSystem()
 bool Container::IsReady()
 {
   return
+    _logSystem != nullptr && _logSystem->IsInitialized() &&
     _fileSystem != nullptr && _fileSystem->IsInitialized() &&
     _resourceSystem != nullptr && _resourceSystem->IsInitialized() &&
     _windowSystem != nullptr && _windowSystem->IsInitialized() &&
@@ -67,6 +78,7 @@ bool Container::IsReady()
 
 void Container::CleanUp()
 {
+  delete _logSystem;
   delete _fileSystem;
   delete _resourceSystem;
   delete _windowSystem;
@@ -75,6 +87,7 @@ void Container::CleanUp()
 }
 
 
+AbstructLogSystem* Container::_logSystem = nullptr;
 AbstractFileSystem* Container::_fileSystem = nullptr;
 AbstractResourceSystem* Container::_resourceSystem = nullptr;
 AbstractWindowSystem* Container::_windowSystem = nullptr;

@@ -18,6 +18,10 @@ set(SOURCE_FILES
 	utils/perlin_noise_2d.cpp
 	utils/perlin_noise_2d.hpp
 
+	log/abstract_log_system.hpp
+	log/console_log_system.cpp
+	log/console_log_system.hpp
+
 	file/abstract_file_system.hpp
 	file/common_file_system.cpp
 	file/common_file_system.hpp
