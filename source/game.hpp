@@ -11,14 +11,12 @@
 class Game
 {
 public:
-  Game(unsigned int width, unsigned int height);
+  Game();
   ~Game();
 
   OpResult Run();
 
 private:
-  ContainerCleanup _containerCleanup;
-
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
 

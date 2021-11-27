@@ -2,17 +2,10 @@
 
 #include <iostream>
 #include <string>
+#include <cstdarg>
 
 #include "direction.hpp"
 #include "Camera.hpp"
-#include "render/glew/glew_shader.hpp"
-
-#include "log/console_log_system.hpp"
-#include "file/common_file_system.hpp"
-#include "resource/resource_system.hpp"
-#include "window/glfw_window_system.hpp"
-#include "input/glfw/glfw_input_system.hpp"
-#include "render/glew/glew_render_system.hpp"
 
 
 std::string string_format(const std::string fmt_str, ...) {
@@ -33,34 +26,14 @@ std::string string_format(const std::string fmt_str, ...) {
   return std::string(formatted.get());
 }
 
-Game::Game(unsigned int width, unsigned int height)
+Game::Game()
 {
-  // Set all systems to container
-  Container::SetLogSystem(new ConsoleLogSystem());
-  Container::SetFileSystem(new CommonFileSystem());
-  Container::SetResorceSystem(new ResourceSystem());
-  Container::SetWindowSystem(new GlfwWindowSystem(width, height));
-  Container::SetInputSystem(new GlfwInputSystem());
-  Container::SetRenderSystem(new GlewRenderSystem());
-
-  // Initialize systems in correct order
-  Container::GetLogSystem()->Init();
-  Container::GetFileSystem()->Init();
-  Container::GetResourceSystem()->Init();
-  Container::GetWindowSystem()->Init();
-  Container::GetInputSystem()->Init();
-  Container::GetRenderSystem()->Init();
+  // Nothing to do here
 }
 
 Game::~Game()
 {
-  // Deinitialize systems in correct order
-  Container::GetRenderSystem()->Deinit();
-  Container::GetInputSystem()->Deinit();
-  Container::GetWindowSystem()->Deinit();
-  Container::GetResourceSystem()->Deinit();
-  Container::GetFileSystem()->Deinit();
-  Container::GetLogSystem()->Deinit();
+  // Nothing to do here
 }
 
 OpResult Game::Run()

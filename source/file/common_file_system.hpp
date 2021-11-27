@@ -1,6 +1,7 @@
 #pragma once
 
 #include "abstract_file_system.hpp"
+#include "container.hpp"
 
 
 /// <summary>

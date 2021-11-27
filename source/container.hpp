@@ -11,14 +11,14 @@
 class Container
 {
 public:
-  static void SetLogSystem(AbstructLogSystem* logSystem);
+  static void SetLogSystem(AbstractLogSystem* logSystem);
   static void SetFileSystem(AbstractFileSystem* fileSystem);
   static void SetResorceSystem(AbstractResourceSystem* resourceSystem);
   static void SetWindowSystem(AbstractWindowSystem* windowSystem);
   static void SetInputSystem(AbstractInputSystem* inputSystem);
   static void SetRenderSystem(AbstractRenderSystem* renderSystem);
 
-  static AbstructLogSystem* GetLogSystem();
+  static AbstractLogSystem* GetLogSystem();
   static AbstractFileSystem* GetFileSystem();
   static AbstractResourceSystem* GetResourceSystem();
   static AbstractWindowSystem* GetWindowSystem();
@@ -29,7 +29,7 @@ public:
   static void CleanUp();
 
 private:
-  static AbstructLogSystem* _logSystem;
+  static AbstractLogSystem* _logSystem;
   static AbstractFileSystem* _fileSystem;
   static AbstractResourceSystem* _resourceSystem;
   static AbstractWindowSystem* _windowSystem;

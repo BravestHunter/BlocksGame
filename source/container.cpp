@@ -3,7 +3,7 @@
 #include <exception>
 
 
-void Container::SetLogSystem(AbstructLogSystem* logSystem)
+void Container::SetLogSystem(AbstractLogSystem* logSystem)
 {
   _logSystem = logSystem;
 }
@@ -34,7 +34,7 @@ void Container::SetRenderSystem(AbstractRenderSystem* renderSystem)
 }
 
 
-AbstructLogSystem* Container::GetLogSystem()
+AbstractLogSystem* Container::GetLogSystem()
 {
   return _logSystem;
 }
@@ -87,7 +87,7 @@ void Container::CleanUp()
 }
 
 
-AbstructLogSystem* Container::_logSystem = nullptr;
+AbstractLogSystem* Container::_logSystem = nullptr;
 AbstractFileSystem* Container::_fileSystem = nullptr;
 AbstractResourceSystem* Container::_resourceSystem = nullptr;
 AbstractWindowSystem* Container::_windowSystem = nullptr;
