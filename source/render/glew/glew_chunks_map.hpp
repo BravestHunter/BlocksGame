@@ -3,6 +3,8 @@
 #include <unordered_map>
 
 #include "glew_headers.hpp"
+#include "glew_vertex_array.hpp"
+#include "glew_buffer.hpp"
 
 
 struct ChunkKey
@@ -21,8 +23,25 @@ struct ChunkKey
 
 struct ChunkData
 {
-  GLuint vao;
-  GLuint vbo;
+  ChunkData() : _vao(nullptr), _vbo(nullptr)
+  {
+  }
+
+  ChunkData(GlewVertexArray* vao, GlewBuffer* vbo) : _vao(vao), _vbo(vbo)
+  {
+  }
+
+  ~ChunkData()
+  {
+    if (_vao != nullptr)
+      delete _vao;
+
+    if (_vbo != nullptr)
+      delete _vbo;
+  }
+
+  GlewVertexArray* _vao;
+  GlewBuffer* _vbo;
 };
 
 
@@ -38,4 +57,4 @@ struct ChunkKeyHasher
 };
 
 
-typedef std::unordered_map<ChunkKey, ChunkData, ChunkKeyHasher> GlewChunksStorage;
+typedef std::unordered_map<ChunkKey, ChunkData*, ChunkKeyHasher> GlewChunksStorage;

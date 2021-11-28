@@ -14,6 +14,14 @@
 #include "resource/glyph.hpp"
 #include "container.hpp"
 
+#define BLOCK_VERTEX_SHADER "/block.vs"
+#define BLOCK_GEOMETRY_SHADER "/block.gs"
+#define BLOCK_FRAGMENT_SHADER "/block.fs"
+
+#define BLOCK_VERTEX_SHADER_PATH SHADERS_DIRECTORY BLOCK_VERTEX_SHADER
+#define BLOCK_GEOMETRY_SHADER_PATH SHADERS_DIRECTORY BLOCK_GEOMETRY_SHADER
+#define BLOCK_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY BLOCK_FRAGMENT_SHADER
+
 #define GLYPH_VERTEX_SHADER "/glyph.vs"
 #define GLYPH_FRAGMENT_SHADER "/glyph.fs"
 #define AXES_VERTEX_SHADER "/axes.vs"
@@ -64,13 +72,19 @@ OpResult GlewRenderSystem::Init()
   glewExperimental = GL_TRUE;
   glewInit();
 
-  _blocksShaderProgram = new GlewBlockShaderProgram();
+  std::string source;
+  fileSystem->ReadString(BLOCK_VERTEX_SHADER_PATH, source);
+  GlewShader blockVertexShader(source.c_str(), GlewShaderType::Vertex);
+  fileSystem->ReadString(BLOCK_GEOMETRY_SHADER_PATH, source);
+  GlewShader blockGeometryShader(source.c_str(), GlewShaderType::Geometry);
+  fileSystem->ReadString(BLOCK_FRAGMENT_SHADER_PATH, source);
+  GlewShader blockFragmentShader(source.c_str(), GlewShaderType::Fragment);
+  _blocksShaderProgram = new GlewShaderProgram(blockVertexShader, blockGeometryShader, blockFragmentShader);
   if (!_blocksShaderProgram->IsLinked())
   {
     return FAILURE;
   }
 
-  std::string source;
   fileSystem->ReadString(GLYPH_VERTEX_SHADER_PATH, source);
   GlewShader glyphVertexShader(source.c_str(), GlewShaderType::Vertex);
   fileSystem->ReadString(GLYPH_FRAGMENT_SHADER_PATH, source);
@@ -183,8 +197,7 @@ OpResult GlewRenderSystem::Deinit()
 
   for (const auto& chunk : _chunks)
   {
-    glDeleteVertexArrays(1, &chunk.second.vao);
-    glDeleteBuffers(1, &chunk.second.vbo);
+    delete chunk.second;
   }
 
   for (const auto& glyph : _characters)
@@ -310,21 +323,20 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
     return FAILURE;
   }
 
-  ChunkData chunkData;
-  glGenVertexArrays(1, &chunkData.vao);
-  glGenBuffers(1, &chunkData.vbo);
+  GlewVertexArray* vertexArray = new GlewVertexArray();
+  GlewBuffer* buffer = new GlewBuffer(chunk->parts, sizeof(chunk->parts), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-  glBindVertexArray(chunkData.vao);
-  glBindBuffer(GL_ARRAY_BUFFER, chunkData.vbo);
+  vertexArray->Bind();
+  buffer->Bind();
 
-  glBufferData(GL_ARRAY_BUFFER, sizeof(chunk->parts), chunk->parts, GL_STATIC_DRAW);
   glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(unsigned int), (void*)0);
   glEnableVertexAttribArray(0);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
-  _chunks[key] = chunkData;
+  _chunks[key] = new ChunkData(vertexArray, buffer);
+  //_chunks.insert(std::make_pair(key, ChunkData(vertexArray, buffer)));
 
   return SUCCESS;
 }
@@ -340,8 +352,7 @@ OpResult GlewRenderSystem::UnloadChunk(int x, int y)
     return FAILURE;
   }
 
-  glDeleteVertexArrays(1, &chunk->second.vao);
-  glDeleteBuffers(1, &chunk->second.vbo);
+  delete chunk->second;
 
   _chunks.erase(chunk);
 
@@ -357,17 +368,18 @@ void GlewRenderSystem::RenderChunks()
   glm::mat4 view = _camera->GetView();
   glm::mat4 projection = _camera->GetProjection();
   glm::mat4 viewProjection = projection * view;
-  _blocksShaderProgram->SetViewProjection(viewProjection);
+  _blocksShaderProgram->SetMat4("VP", viewProjection);
 
   for (const auto& chunk : _chunks)
   {
     const ChunkKey& chunkKey = chunk.first;
-    const ChunkData& chunkData = chunk.second;
+    const ChunkData& chunkData = *chunk.second;
 
     _blocksShaderProgram->SetInt("xOffset", chunkKey.x * 16);
     _blocksShaderProgram->SetInt("yOffset", chunkKey.y * 16);
 
-    glBindVertexArray(chunkData.vao);
+    //glBindVertexArray(chunkData.vao);
+    chunkData._vao->Bind();
     glDrawArrays(GL_POINTS, 0, Chunk::BlocksNumber);
   }
 }

@@ -6,6 +6,7 @@
 class GlewEntity
 {
 public:
+  GlewEntity();
   virtual ~GlewEntity();
 
   GLuint GetId();
@@ -13,5 +14,5 @@ public:
   static const GLuint FreeId = -1;
 
 protected:
-  GLuint _id = FreeId;
+  GLuint _id;
 };

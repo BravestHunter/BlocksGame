@@ -67,6 +67,10 @@ set(SOURCE_FILES
 	render/glew/glew_headers.hpp
 	render/glew/glew_entity.cpp
 	render/glew/glew_entity.hpp
+	render/glew/glew_buffer.cpp
+	render/glew/glew_buffer.hpp
+	render/glew/glew_vertex_array.cpp
+	render/glew/glew_vertex_array.hpp
 	render/glew/glew_texture.cpp
 	render/glew/glew_texture.hpp
 	render/glew/glew_glyph.cpp
@@ -79,8 +83,6 @@ set(SOURCE_FILES
 	render/glew/glew_shader_program.hpp
 	render/glew/glew_shader.cpp
 	render/glew/glew_shader.hpp
-	render/glew/glew_block_shader_program.cpp
-	render/glew/glew_block_shader_program.hpp
 )
 
 add_library(BlocksGameCore STATIC ${SOURCE_FILES})

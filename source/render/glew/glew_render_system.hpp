@@ -10,7 +10,6 @@
 
 #include "glew_shader.hpp"
 #include "glew_shader_program.hpp"
-#include "glew_block_shader_program.hpp"
 #include "glew_chunks_map.hpp"
 
 #include "world/world.hpp"
@@ -45,7 +44,7 @@ private:
 
   GlewChunksStorage _chunks {};
   GlewTexture* _blockTextureAltlas;
-  GlewBlockShaderProgram* _blocksShaderProgram;
+  GlewShaderProgram* _blocksShaderProgram;
 
   std::map<GLchar, GlewGlyph*> _characters;
   GLuint _glyphVAO;
