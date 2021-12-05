@@ -635,6 +635,9 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
   _chunks[key] = chunkData;
   //_chunks.insert(std::make_pair(key, ChunkData(vertexArray, buffer)));
 
+  delete verticesData;
+  delete indicesData;
+
   return SUCCESS;
 }
 
