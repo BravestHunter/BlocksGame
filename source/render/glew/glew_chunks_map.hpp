@@ -23,25 +23,32 @@ struct ChunkKey
 
 struct ChunkData
 {
-  ChunkData() : _vao(nullptr), _vbo(nullptr)
-  {
-  }
+  const static size_t FaceVerticesNumber = 4;
+  const static size_t FaceIndicesNumber = 6;
 
-  ChunkData(GlewVertexArray* vao, GlewBuffer* vbo) : _vao(vao), _vbo(vbo)
-  {
-  }
+  const static size_t BlockVerticesNumber = FaceVerticesNumber * 6;
+  const static size_t BlockIndicesNumber = FaceIndicesNumber *  6;
 
-  ~ChunkData()
-  {
-    if (_vao != nullptr)
-      delete _vao;
+  const static size_t ChunkPartVerticesNumber = BlockVerticesNumber * ChunkPart::BlocksNumber;
+  const static size_t ChunkPartIndicesNumber = BlockIndicesNumber * ChunkPart::BlocksNumber;
 
-    if (_vbo != nullptr)
-      delete _vbo;
-  }
+  const static size_t ChunkVerticesNumber = ChunkPartVerticesNumber * Chunk::PartsNumber;
+  const static size_t ChunkIndicesNumber = ChunkPartIndicesNumber * Chunk::PartsNumber;
 
-  GlewVertexArray* _vao;
-  GlewBuffer* _vbo;
+  const static size_t VertexSize = sizeof(float) * 5;
+  const static size_t IndexSize = sizeof(unsigned int);
+
+  const static size_t ChunkPartVerticesSize = VertexSize * ChunkPartVerticesNumber;
+  const static size_t ChunkPartIndicesSize = IndexSize * ChunkPartIndicesNumber;
+
+  const static size_t ChunkVerticesSize = VertexSize * ChunkVerticesNumber;
+  const static size_t ChunkIndicesSize = IndexSize * ChunkIndicesNumber;
+
+  GLuint _vao;
+  GLuint _vbo;
+  GLuint _ebo;
+
+  GLsizei count[Chunk::PartsNumber];
 };
 
 
@@ -57,4 +64,4 @@ struct ChunkKeyHasher
 };
 
 
-typedef std::unordered_map<ChunkKey, ChunkData*, ChunkKeyHasher> GlewChunksStorage;
+typedef std::unordered_map<ChunkKey, ChunkData, ChunkKeyHasher> GlewChunksStorage;

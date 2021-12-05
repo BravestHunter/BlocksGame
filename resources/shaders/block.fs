@@ -1,13 +1,12 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec2 texCoords;
+in vec2 TexCoords;
 
-// texture samplers
 uniform sampler2D blockAtlasTexture;
 
 
 void main()
 {
-    FragColor = texture(blockAtlasTexture, texCoords);
+    FragColor = texture(blockAtlasTexture, TexCoords);
 }

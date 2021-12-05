@@ -66,7 +66,7 @@ OpResult Game::Run()
     lastFrame = currentFrame;
 
     ProcessInput(inputSystem, windowSystem, camera);
-    UpdateLoadedChunks(camera->GetPosition());
+    //UpdateLoadedChunks(camera->GetPosition());
 
     renderSystem->Clear(glm::vec4(0.63f, 0.85f, 0.97f, 1.0f));
 
@@ -109,19 +109,19 @@ void Game::ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* 
   glm::vec3 position = camera->GetPosition();
   if (inputSystem->GetKeyStatus(KeyboardKey::W) == KeyboardKeyState::PRESSED)
   {
-    camera->SetPosition(position + camera->GetForward() * deltaTime * 50.0f);
+    camera->SetPosition(position + camera->GetForward() * deltaTime * 150.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::S) == KeyboardKeyState::PRESSED)
   {
-    camera->SetPosition(position - camera->GetForward() * deltaTime * 50.0f);
+    camera->SetPosition(position - camera->GetForward() * deltaTime * 150.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::A) == KeyboardKeyState::PRESSED)
   {
-    camera->SetPosition(position - camera->GetRight() * deltaTime * 50.0f);
+    camera->SetPosition(position - camera->GetRight() * deltaTime * 150.0f);
   }
   if (inputSystem->GetKeyStatus(KeyboardKey::D) == KeyboardKeyState::PRESSED)
   {
-    camera->SetPosition(position + camera->GetRight() * deltaTime * 50.0f);
+    camera->SetPosition(position + camera->GetRight() * deltaTime * 150.0f);
   }
 
   if (inputSystem->GetMouseDeltaX() != 0)

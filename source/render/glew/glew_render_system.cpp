@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iterator>
+#include <array>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -15,11 +16,8 @@
 #include "container.hpp"
 
 #define BLOCK_VERTEX_SHADER "/block.vs"
-#define BLOCK_GEOMETRY_SHADER "/block.gs"
 #define BLOCK_FRAGMENT_SHADER "/block.fs"
-
 #define BLOCK_VERTEX_SHADER_PATH SHADERS_DIRECTORY BLOCK_VERTEX_SHADER
-#define BLOCK_GEOMETRY_SHADER_PATH SHADERS_DIRECTORY BLOCK_GEOMETRY_SHADER
 #define BLOCK_FRAGMENT_SHADER_PATH SHADERS_DIRECTORY BLOCK_FRAGMENT_SHADER
 
 #define GLYPH_VERTEX_SHADER "/glyph.vs"
@@ -37,7 +35,34 @@
 #define QUICKSAND_FONTPATH AXES_FONTS_PATH QUICKSAND_FONT
 
 
-GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _blocksShaderProgram(NULL)
+static const float BlockSize = 1.0f;
+static const float TexelSize = 0.25;
+
+inline glm::vec3 GetLowBlockPosition(int x, int y, int z, int chunkPart, int chunkX, int chunkY)
+{
+  return glm::vec3(
+    BlockSize * (x + chunkX * 16),
+    BlockSize * (y + chunkY * 16),
+    BlockSize * (z + chunkPart * 16)
+  );
+}
+
+glm::vec4 GetTexCoords(unsigned int index)
+{
+  unsigned int y = index / 4;
+  unsigned int x = index - y * 4;
+
+  return glm::vec4(
+    x * TexelSize,
+    (x + 1) * TexelSize,
+    (3.0 - y) * TexelSize,
+    (3.0 - y + 1) * TexelSize
+  );
+}
+
+
+
+GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL)
 {
   _camera = new Camera(
     CameraProjectionType::Perspective,
@@ -51,10 +76,6 @@ GlewRenderSystem::GlewRenderSystem() : _width(0), _height(0), _camera(NULL), _bl
 GlewRenderSystem::~GlewRenderSystem()
 {
   delete _camera;
-
-  delete _blocksShaderProgram;
-  delete _glyphShaderProgram;
-  delete _axesShaderProgram;
 }
 
 
@@ -75,11 +96,9 @@ OpResult GlewRenderSystem::Init()
   std::string source;
   fileSystem->ReadString(BLOCK_VERTEX_SHADER_PATH, source);
   GlewShader blockVertexShader(source.c_str(), GlewShaderType::Vertex);
-  fileSystem->ReadString(BLOCK_GEOMETRY_SHADER_PATH, source);
-  GlewShader blockGeometryShader(source.c_str(), GlewShaderType::Geometry);
   fileSystem->ReadString(BLOCK_FRAGMENT_SHADER_PATH, source);
   GlewShader blockFragmentShader(source.c_str(), GlewShaderType::Fragment);
-  _blocksShaderProgram = new GlewShaderProgram(blockVertexShader, blockGeometryShader, blockFragmentShader);
+  _blocksShaderProgram = new GlewShaderProgram(blockVertexShader, blockFragmentShader);
   if (!_blocksShaderProgram->IsLinked())
   {
     return FAILURE;
@@ -197,7 +216,9 @@ OpResult GlewRenderSystem::Deinit()
 
   for (const auto& chunk : _chunks)
   {
-    delete chunk.second;
+    glDeleteVertexArrays(1, &chunk.second._vao);
+    glDeleteBuffers(1, &chunk.second._vbo);
+    glDeleteBuffers(1, &chunk.second._ebo);
   }
 
   for (const auto& glyph : _characters)
@@ -212,6 +233,10 @@ OpResult GlewRenderSystem::Deinit()
   glDeleteVertexArrays(1, &_axesVAO);
   glDeleteBuffers(1, &_axesVBO);
   //================================
+
+  delete _blocksShaderProgram;
+  delete _glyphShaderProgram;
+  delete _axesShaderProgram;
 
   _isInitialized = false;
   return SUCCESS;
@@ -323,19 +348,291 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
     return FAILURE;
   }
 
-  GlewVertexArray* vertexArray = new GlewVertexArray();
-  GlewBuffer* buffer = new GlewBuffer(chunk->parts, sizeof(chunk->parts), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+  ChunkData chunkData;
 
-  vertexArray->Bind();
-  buffer->Bind();
+  float* verticesData = new float[ChunkData::ChunkVerticesSize];
+  unsigned int* indicesData = new unsigned int[ChunkData::ChunkIndicesSize];
+  for (int p = 0; p < Chunk::PartsNumber; p++)
+  {
+    int vOffset = p * ChunkData::ChunkPartVerticesNumber * 5;
+    int iOffset = p * ChunkData::ChunkPartIndicesNumber;
 
-  glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(unsigned int), (void*)0);
+    int iCounter = p * ChunkData::ChunkPartVerticesNumber;
+    int iPartCounter = 0;
+
+    for (int z = 0; z < ChunkPart::Height; z++)
+    {
+      for (int y = 0; y < ChunkPart::Width; y++)
+      {
+        for (int x = 0; x < ChunkPart::Length; x++)
+        {
+          int blockIndex = x + y * ChunkPart::Length + z * ChunkPart::Layer;
+
+          // Skip air block
+          if (chunk->parts[p].blocks[blockIndex] == 0)
+            continue;
+
+          glm::vec3 position = GetLowBlockPosition(x, y, z, p, key.x, key.y);
+          glm::vec4 texCoords = GetTexCoords(chunk->parts->blocks[blockIndex] - 1);
+
+          // Front face
+          if (x == ChunkPart::Length - 1 || chunk->parts[p].blocks[blockIndex + 1] == 0)
+          {
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+          // Back face
+          if (x == 0 || chunk->parts[p].blocks[blockIndex - 1] == 0)
+          {
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3]; 
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+          // Right face
+          if (y == ChunkPart::Width - 1 || chunk->parts[p].blocks[blockIndex + ChunkPart::Width] == 0)
+          {
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3];
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+          // Left face
+          if (y == 0 || chunk->parts[p].blocks[blockIndex - ChunkPart::Width] == 0)
+          {
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+          // Top face
+          if (z == ChunkPart::Height - 1 || chunk->parts[p].blocks[blockIndex + ChunkPart::Layer] == 0)
+          {
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z + BlockSize;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+          // Bottom face
+          if (z == 0 || chunk->parts[p].blocks[blockIndex - ChunkPart::Layer] == 0)
+          {
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[2];
+
+            verticesData[vOffset++] = position.x + BlockSize;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[1];
+            verticesData[vOffset++] = texCoords[3];
+
+            verticesData[vOffset++] = position.x;
+            verticesData[vOffset++] = position.y + BlockSize;
+            verticesData[vOffset++] = position.z;
+            verticesData[vOffset++] = texCoords[0];
+            verticesData[vOffset++] = texCoords[3];
+
+            indicesData[iOffset++] = iCounter + 0;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 2;
+            indicesData[iOffset++] = iCounter + 1;
+            indicesData[iOffset++] = iCounter + 3;
+            iCounter += 4;
+
+            iPartCounter += 6;
+          }
+
+
+        }
+      }
+    }
+
+    chunkData.count[p] = iPartCounter;
+  }
+
+  glGenVertexArrays(1, &chunkData._vao);
+  glGenBuffers(1, &chunkData._vbo);
+  glGenBuffers(1, &chunkData._ebo);
+
+  glBindVertexArray(chunkData._vao);
+
+  glBindBuffer(GL_ARRAY_BUFFER, chunkData._vbo);
+  glBufferData(GL_ARRAY_BUFFER, ChunkData::ChunkVerticesSize, verticesData, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkData._ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, ChunkData::ChunkIndicesSize, indicesData, GL_STATIC_DRAW);
+
+  int stride = 5 * sizeof(GLfloat);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
   glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(3 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
-  _chunks[key] = new ChunkData(vertexArray, buffer);
+  _chunks[key] = chunkData;
   //_chunks.insert(std::make_pair(key, ChunkData(vertexArray, buffer)));
 
   return SUCCESS;
@@ -352,12 +649,33 @@ OpResult GlewRenderSystem::UnloadChunk(int x, int y)
     return FAILURE;
   }
 
-  delete chunk->second;
+  glDeleteVertexArrays(1, &chunk->second._vao);
+  glDeleteBuffers(1, &chunk->second._vbo);
+  glDeleteBuffers(1, &chunk->second._ebo);
 
   _chunks.erase(chunk);
 
   return SUCCESS;
 }
+
+GLvoid* offsets[16] = {
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 0),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 1),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 2),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 3),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 4),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 5),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 6),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 7),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 8),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 9),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 10),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 11),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 12),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 13),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 14),
+    (GLvoid*)(ChunkData::ChunkPartIndicesSize * 15),
+};
 
 void GlewRenderSystem::RenderChunks()
 {
@@ -373,13 +691,9 @@ void GlewRenderSystem::RenderChunks()
   for (const auto& chunk : _chunks)
   {
     const ChunkKey& chunkKey = chunk.first;
-    const ChunkData& chunkData = *chunk.second;
+    const ChunkData& chunkData = chunk.second;
 
-    _blocksShaderProgram->SetInt("xOffset", chunkKey.x * 16);
-    _blocksShaderProgram->SetInt("yOffset", chunkKey.y * 16);
-
-    //glBindVertexArray(chunkData.vao);
-    chunkData._vao->Bind();
-    glDrawArrays(GL_POINTS, 0, Chunk::BlocksNumber);
+    glBindVertexArray(chunkData._vao);
+    glMultiDrawElements(GL_TRIANGLES, chunkData.count, GL_UNSIGNED_INT, offsets, Chunk::PartsNumber);
   }
 }
