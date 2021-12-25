@@ -21,7 +21,7 @@ private:
   float lastFrame = 0.0f;
 
   World _world;
-  unsigned int _renderRadius = 5;
+  unsigned int _renderRadius = 0;
   glm::ivec2 _lastCenterChunk {};
 
   void ProcessInput(AbstractInputSystem* inputSystem, AbstractWindowSystem* windowSystem, Camera* camera);

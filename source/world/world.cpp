@@ -26,7 +26,7 @@ Chunk* World::GetChunk(int x, int y)
 
   Chunk* chunk = GenerateChunk(position);
 
-  _chunks[position] = chunk;
+  //_chunks[position] = chunk;
 
   return chunk;
 }
@@ -91,10 +91,7 @@ Chunk* World::GenerateChunk(const ChunkPosition& position)
 
       for (int z = 0; z < height; z++)
       {
-        int part = z / ChunkPart::Height;
-        int h = z - part * ChunkPart::Height;
-      
-        chunk->parts[part].blocks[x + y * ChunkPart::Length + h * ChunkPart::Layer] = (height > 128 ? 1 : 2);
+        chunk->blocks[x + y * Chunk::Length + z * Chunk::Layer] = (z > 128 ? 2 : 1);
       }
     }
   }

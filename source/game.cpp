@@ -50,12 +50,14 @@ OpResult Game::Run()
 
   // Initial chunks load
   _lastCenterChunk = glm::ivec2(0, 0);
-  int a = _lastCenterChunk.x - _renderRadius;
-  for (int i = _lastCenterChunk.x - _renderRadius, lastX = _lastCenterChunk.x + _renderRadius; i <= lastX; i++)
+  //for (int i = _lastCenterChunk.x - _renderRadius, lastX = _lastCenterChunk.x + _renderRadius; i <= lastX; i++)
+  for (int i = 0, lastX = 20; i <= lastX; i++)
   {
     for (int j = _lastCenterChunk.y - _renderRadius, lastY = _lastCenterChunk.y + _renderRadius; j <= lastY; j++)
     {
-      renderSystem->LoadChunk(i, j, _world.GetChunk(i, j));
+      Chunk* chunk = _world.GetChunk(i, j);
+      renderSystem->LoadChunk(i, j, chunk);
+      delete chunk;
     }
   }
   

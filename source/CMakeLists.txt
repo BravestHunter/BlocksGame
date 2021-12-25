@@ -41,7 +41,6 @@ set(SOURCE_FILES
 	resource/resource_system.hpp
 
 	world/block.hpp
-	world/chunk_part.hpp
 	world/chunk.hpp
 	world/chunk_position.hpp
 	world/chunk_storage.hpp

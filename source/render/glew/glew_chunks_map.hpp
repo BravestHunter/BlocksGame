@@ -23,24 +23,27 @@ struct ChunkKey
 
 struct ChunkData
 {
+  const static size_t ChunkPartsNumber = 16;
+  const static size_t ChunkPartBlocksNumber = Chunk::Length * Chunk::Width * 16;
+
   const static size_t FaceVerticesNumber = 4;
   const static size_t FaceIndicesNumber = 6;
-
+  
   const static size_t BlockVerticesNumber = FaceVerticesNumber * 6;
   const static size_t BlockIndicesNumber = FaceIndicesNumber *  6;
-
-  const static size_t ChunkPartVerticesNumber = BlockVerticesNumber * ChunkPart::BlocksNumber;
-  const static size_t ChunkPartIndicesNumber = BlockIndicesNumber * ChunkPart::BlocksNumber;
-
-  const static size_t ChunkVerticesNumber = ChunkPartVerticesNumber * Chunk::PartsNumber;
-  const static size_t ChunkIndicesNumber = ChunkPartIndicesNumber * Chunk::PartsNumber;
-
+  
+  const static size_t ChunkPartVerticesNumber = BlockVerticesNumber * ChunkPartBlocksNumber;
+  const static size_t ChunkPartIndicesNumber = BlockIndicesNumber * ChunkPartBlocksNumber;
+  
+  const static size_t ChunkVerticesNumber = ChunkPartVerticesNumber * ChunkPartsNumber;
+  const static size_t ChunkIndicesNumber = ChunkPartIndicesNumber * ChunkPartsNumber;
+  
   const static size_t VertexSize = sizeof(float) * 5;
   const static size_t IndexSize = sizeof(unsigned int);
-
+  
   const static size_t ChunkPartVerticesSize = VertexSize * ChunkPartVerticesNumber;
   const static size_t ChunkPartIndicesSize = IndexSize * ChunkPartIndicesNumber;
-
+  
   const static size_t ChunkVerticesSize = VertexSize * ChunkVerticesNumber;
   const static size_t ChunkIndicesSize = IndexSize * ChunkIndicesNumber;
 
@@ -48,7 +51,7 @@ struct ChunkData
   GLuint _vbo;
   GLuint _ebo;
 
-  GLsizei count[Chunk::PartsNumber];
+  GLsizei count[ChunkPartsNumber];
 };
 
 

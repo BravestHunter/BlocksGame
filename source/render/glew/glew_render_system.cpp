@@ -352,7 +352,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
 
   float* verticesData = new float[ChunkData::ChunkVerticesSize];
   unsigned int* indicesData = new unsigned int[ChunkData::ChunkIndicesSize];
-  for (int p = 0; p < Chunk::PartsNumber; p++)
+  for (int p = 0; p < ChunkData::ChunkPartsNumber; p++)
   {
     int vOffset = p * ChunkData::ChunkPartVerticesNumber * 5;
     int iOffset = p * ChunkData::ChunkPartIndicesNumber;
@@ -360,23 +360,23 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
     int iCounter = p * ChunkData::ChunkPartVerticesNumber;
     int iPartCounter = 0;
 
-    for (int z = 0; z < ChunkPart::Height; z++)
+    for (int z = 0; z < 16; z++)
     {
-      for (int y = 0; y < ChunkPart::Width; y++)
+      for (int y = 0; y < Chunk::Width; y++)
       {
-        for (int x = 0; x < ChunkPart::Length; x++)
+        for (int x = 0; x < Chunk::Length; x++)
         {
-          int blockIndex = x + y * ChunkPart::Length + z * ChunkPart::Layer;
+          int blockIndex = x + y * Chunk::Length + z * Chunk::Layer + p * ChunkData::ChunkPartBlocksNumber;
 
           // Skip air block
-          if (chunk->parts[p].blocks[blockIndex] == 0)
+          if (chunk->blocks[blockIndex] == 0)
             continue;
 
           glm::vec3 position = GetLowBlockPosition(x, y, z, p, key.x, key.y);
-          glm::vec4 texCoords = GetTexCoords(chunk->parts->blocks[blockIndex] - 1);
+          glm::vec4 texCoords = GetTexCoords(chunk->blocks[blockIndex] - 1);
 
           // Front face
-          if (x == ChunkPart::Length - 1 || chunk->parts[p].blocks[blockIndex + 1] == 0)
+          if (x == Chunk::Length - 1 || chunk->blocks[blockIndex + 1] == 0)
           {
             verticesData[vOffset++] = position.x + BlockSize;
             verticesData[vOffset++] = position.y;
@@ -414,7 +414,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
           }
 
           // Back face
-          if (x == 0 || chunk->parts[p].blocks[blockIndex - 1] == 0)
+          if (x == 0 || chunk->blocks[blockIndex - 1] == 0)
           {
             verticesData[vOffset++] = position.x;
             verticesData[vOffset++] = position.y + BlockSize;
@@ -452,7 +452,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
           }
 
           // Right face
-          if (y == ChunkPart::Width - 1 || chunk->parts[p].blocks[blockIndex + ChunkPart::Width] == 0)
+          if (y == Chunk::Width - 1 || chunk->blocks[blockIndex + Chunk::Width] == 0)
           {
             verticesData[vOffset++] = position.x + BlockSize;
             verticesData[vOffset++] = position.y + BlockSize;
@@ -490,7 +490,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
           }
 
           // Left face
-          if (y == 0 || chunk->parts[p].blocks[blockIndex - ChunkPart::Width] == 0)
+          if (y == 0 || chunk->blocks[blockIndex - Chunk::Width] == 0)
           {
             verticesData[vOffset++] = position.x;
             verticesData[vOffset++] = position.y;
@@ -528,7 +528,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
           }
 
           // Top face
-          if (z == ChunkPart::Height - 1 || chunk->parts[p].blocks[blockIndex + ChunkPart::Layer] == 0)
+          if (z == 15 || chunk->blocks[blockIndex + Chunk::Layer] == 0)
           {
             verticesData[vOffset++] = position.x;
             verticesData[vOffset++] = position.y;
@@ -566,7 +566,7 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
           }
 
           // Bottom face
-          if (z == 0 || chunk->parts[p].blocks[blockIndex - ChunkPart::Layer] == 0)
+          if (z == 0 || chunk->blocks[blockIndex - Chunk::Layer] == 0)
           {
             verticesData[vOffset++] = position.x + BlockSize;
             verticesData[vOffset++] = position.y;
@@ -635,8 +635,8 @@ OpResult GlewRenderSystem::LoadChunk(int x, int y, Chunk* chunk)
   _chunks[key] = chunkData;
   //_chunks.insert(std::make_pair(key, ChunkData(vertexArray, buffer)));
 
-  delete verticesData;
-  delete indicesData;
+  delete[] verticesData;
+  delete[] indicesData;
 
   return SUCCESS;
 }
@@ -697,6 +697,6 @@ void GlewRenderSystem::RenderChunks()
     const ChunkData& chunkData = chunk.second;
 
     glBindVertexArray(chunkData._vao);
-    glMultiDrawElements(GL_TRIANGLES, chunkData.count, GL_UNSIGNED_INT, offsets, Chunk::PartsNumber);
+    glMultiDrawElements(GL_TRIANGLES, chunkData.count, GL_UNSIGNED_INT, offsets, ChunkData::ChunkPartsNumber);
   }
 }
