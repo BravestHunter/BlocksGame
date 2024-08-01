@@ -9,6 +9,6 @@ Project is built using CMake. Compiler must support c++ 20. Only tested on Windo
 
 ## Screenshots
 
-![](Screenshots/1.png)
+![](screenshots/1.png)
 
-![](Screenshots/2.png)
+![](screenshots/2.png)
