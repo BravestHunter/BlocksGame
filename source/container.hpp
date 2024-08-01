@@ -1,6 +1,5 @@
 #pragma once
 
-#include "log/abstract_log_system.hpp"
 #include "file/abstract_file_system.hpp"
 #include "resource/abstract_resource_system.hpp"
 #include "window/abstract_window_system.hpp"
@@ -11,14 +10,12 @@
 class Container
 {
 public:
-  static void SetLogSystem(AbstractLogSystem* logSystem);
   static void SetFileSystem(AbstractFileSystem* fileSystem);
   static void SetResorceSystem(AbstractResourceSystem* resourceSystem);
   static void SetWindowSystem(AbstractWindowSystem* windowSystem);
   static void SetInputSystem(AbstractInputSystem* inputSystem);
   static void SetRenderSystem(AbstractRenderSystem* renderSystem);
 
-  static AbstractLogSystem* GetLogSystem();
   static AbstractFileSystem* GetFileSystem();
   static AbstractResourceSystem* GetResourceSystem();
   static AbstractWindowSystem* GetWindowSystem();
@@ -29,7 +26,6 @@ public:
   static void CleanUp();
 
 private:
-  static AbstractLogSystem* _logSystem;
   static AbstractFileSystem* _fileSystem;
   static AbstractResourceSystem* _resourceSystem;
   static AbstractWindowSystem* _windowSystem;

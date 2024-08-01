@@ -2,7 +2,6 @@
 
 #include "op_result.hpp"
 
-#include "log/console_log_system.hpp"
 #include "file/common_file_system.hpp"
 #include "resource/resource_system.hpp"
 #include "window/glfw_window_system.hpp"
@@ -18,7 +17,6 @@ int main()
   ContainerCleanup _containerCleanup;
 
   // Set all systems to container
-  Container::SetLogSystem(new ConsoleLogSystem(LogLevel::Debug));
   Container::SetFileSystem(new CommonFileSystem());
   Container::SetResorceSystem(new ResourceSystem());
   Container::SetWindowSystem(new GlfwWindowSystem(WIDTH, HEIGHT));
@@ -26,7 +24,6 @@ int main()
   Container::SetRenderSystem(new GlewRenderSystem());
 
   // Initialize systems in correct order
-  Container::GetLogSystem()->Init();
   Container::GetFileSystem()->Init();
   Container::GetResourceSystem()->Init();
   Container::GetWindowSystem()->Init();
@@ -42,7 +39,6 @@ int main()
   Container::GetWindowSystem()->Deinit();
   Container::GetResourceSystem()->Deinit();
   Container::GetFileSystem()->Deinit();
-  Container::GetLogSystem()->Deinit();
 
   return (int)result;
 }

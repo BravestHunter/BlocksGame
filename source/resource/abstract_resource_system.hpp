@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "abstract_system.hpp"
 #include "resource_id.hpp"
 #include "image.hpp"
